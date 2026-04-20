@@ -10,9 +10,9 @@ spring:
       write-dates-as-timestamps: false    # ISO-8601 dates ("2026-04-16"), not epoch millis
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ibox}
-    username: ${DB_USER:ibox_user}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://192.168.1.3:5432/postgres?currentSchema=ibox}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: LockboxHikariPool
@@ -26,9 +26,9 @@ spring:
 lockbox:
   import:
     # ── Directories ───────────────────────────────────────────────────
-    in-dir:        ${LOCKBOX_IN_DIR:/data/lockbox/in}           # scheduler watches this dir
-    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/lockbox/processed}  # moved here on success
-    error-dir:     ${LOCKBOX_ERROR_DIR:/data/lockbox/error}     # moved here on failure
+    in-dir:        ${LOCKBOX_IN_DIR:D:\ibox\file\in}           # scheduler watches this dir
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:D:\ibox\file\processed}  # moved here on success
+    error-dir:     ${LOCKBOX_ERROR_DIR:D:\ibox\file\error}     # moved here on failure
 
     # ── Scheduler ─────────────────────────────────────────────────────
     scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
@@ -43,7 +43,7 @@ lockbox:
     max-lockbox-count:     50000 # EF-108: reject file if lockbox count exceeds this
     max-file-age-days:     2     # EF-106: reject file if ASPECDate is older than N days
     staging-retention-days: 30  # days to keep staging rows before purge service removes them
-    db-schema: ${LOCKBOX_DB_SCHEMA:ibox_uat}  # PostgreSQL schema owning lockbox tables + procedure
+    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}  # PostgreSQL schema owning lockbox tables + procedure
 
 logging:
   level:
