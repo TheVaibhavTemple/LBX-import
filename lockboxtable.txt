@@ -1,0 +1,106 @@
+-- Table: ibox_uat.ibox_lockbox
+
+-- DROP TABLE IF EXISTS ibox_uat.ibox_lockbox;
+
+CREATE TABLE IF NOT EXISTS ibox_uat.ibox_lockbox
+(
+    lockboxid integer NOT NULL DEFAULT nextval('ibox_lockbox_lockboxid_seq'::regclass),
+    globalclientidentifierid integer,
+    site_identifier character varying(10) COLLATE pg_catalog."default",
+    provider_id integer NOT NULL,
+    lob_id integer NOT NULL,
+    application_id integer NOT NULL,
+    lockboxnumber character varying(20) COLLATE pg_catalog."default",
+    lockboxname character varying(256) COLLATE pg_catalog."default",
+    lockboxstatus character varying(10) COLLATE pg_catalog."default",
+    digitalindicator boolean,
+    postalcode character varying(50) COLLATE pg_catalog."default",
+    specificationidentifier character varying(20) COLLATE pg_catalog."default",
+    addresstype character varying(15) COLLATE pg_catalog."default",
+    addresscompanyname character varying(100) COLLATE pg_catalog."default",
+    postofficebox character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    addressattn character varying(100) COLLATE pg_catalog."default",
+    addressstreet1 character varying(100) COLLATE pg_catalog."default",
+    addressstreet2 character varying(100) COLLATE pg_catalog."default",
+    addresscity character varying(50) COLLATE pg_catalog."default",
+    addressstate character varying(2) COLLATE pg_catalog."default",
+    addresspostalcode character varying(50) COLLATE pg_catalog."default",
+    addresscountry character(2) COLLATE pg_catalog."default",
+    modified_by character varying(50) COLLATE pg_catalog."default",
+    created_at timestamp without time zone NOT NULL DEFAULT now(),
+    updated_at timestamp without time zone NOT NULL DEFAULT now(),
+    incomingfileid bigint,
+    last_updated_by character varying(100) COLLATE pg_catalog."default",
+    last_update_on timestamp without time zone,
+    batchmode character varying(50) COLLATE pg_catalog."default",
+    batchsize integer,
+    batchmode_int integer,
+    CONSTRAINT ibox_lockbox_pkey PRIMARY KEY (lockboxid),
+    CONSTRAINT ibox_lockbox_site_identifier_lockboxnumber_postofficebox_key UNIQUE (site_identifier, lockboxnumber, postofficebox)
+)
+
+TABLESPACE pg_default;
+
+ 
+ 
+ 
+-- Table: ibox_uat.ibox_global_client_identifier
+
+-- DROP TABLE IF EXISTS ibox_uat.ibox_global_client_identifier;
+
+CREATE TABLE IF NOT EXISTS ibox_uat.ibox_global_client_identifier
+(
+    globalclientidentifierid integer NOT NULL DEFAULT nextval('ibox_global_client_identifier_globalclientidentifierid_seq'::regclass),
+    familygci character varying(10) COLLATE pg_catalog."default",
+    primarygci character varying(10) COLLATE pg_catalog."default",
+    provider_id integer,
+    modified_by bigint,
+    created_at timestamp without time zone NOT NULL DEFAULT now(),
+    updated_at timestamp without time zone NOT NULL DEFAULT now(),
+    CONSTRAINT ibox_global_client_identifier_pkey PRIMARY KEY (globalclientidentifierid)
+)
+
+TABLESPACE pg_default;
+ 
+ 
+ 
+-- Table: ibox_uat.ibox_specification
+
+-- DROP TABLE IF EXISTS ibox_uat.ibox_specification;
+
+CREATE TABLE IF NOT EXISTS ibox_uat.ibox_specification
+(
+    specificationidentifier character varying(10) COLLATE pg_catalog."default" NOT NULL,
+    provider_id integer NOT NULL,
+    modified_by bigint,
+    created_at timestamp without time zone NOT NULL DEFAULT now(),
+    updated_at timestamp without time zone NOT NULL DEFAULT now(),
+    CONSTRAINT ibox_specification_pkey PRIMARY KEY (specificationidentifier)
+)
+
+TABLESPACE pg_default;
+
+ 
+ 
+ 
+-- Table: ibox_uat.ibox_validation_error
+
+-- DROP TABLE IF EXISTS ibox_uat.ibox_validation_error;
+
+CREATE TABLE IF NOT EXISTS ibox_uat.ibox_validation_error
+(
+    validation_error_id bigint NOT NULL DEFAULT nextval('ibox_validation_error_validation_error_id_seq'::regclass),
+    entity_type character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    field_name character varying(100) COLLATE pg_catalog."default",
+    internal_error_code character varying(50) COLLATE pg_catalog."default",
+    provider_error_code character varying(50) COLLATE pg_catalog."default",
+    error_message text COLLATE pg_catalog."default" NOT NULL,
+    created_at timestamp without time zone NOT NULL DEFAULT now(),
+    modified_at timestamp without time zone,
+    client_id integer,
+    provider_id integer,
+    CONSTRAINT ibox_validation_error_pkey PRIMARY KEY (validation_error_id)
+)
+
+TABLESPACE pg_default;
+ 

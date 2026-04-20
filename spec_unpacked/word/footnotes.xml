@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8"?>
+<w:footnotes xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:oel="http://schemas.microsoft.com/office/2019/extlst" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16du="http://schemas.microsoft.com/office/word/2023/wordml/word16du" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16sdtfl="http://schemas.microsoft.com/office/word/2024/wordml/sdtformatlock" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh w16sdtfl w16du wp14">
+  <w:footnote w:type="separator" w:id="-1">
+    <w:p w14:paraId="3AF85E88" w14:textId="77777777" w:rsidR="00B65662" w:rsidRDefault="00B65662" w:rsidP="00EF50CF">
+      <w:pPr>
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto"/>
+      </w:pPr>
+      <w:r>
+        <w:separator/>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:type="continuationSeparator" w:id="0">
+    <w:p w14:paraId="333E0972" w14:textId="77777777" w:rsidR="00B65662" w:rsidRDefault="00B65662" w:rsidP="00EF50CF">
+      <w:pPr>
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto"/>
+      </w:pPr>
+      <w:r>
+        <w:continuationSeparator/>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="1">
+    <w:p w14:paraId="1A3B05C2" w14:textId="4D3F83C1" w:rsidR="000923CF" w:rsidRDefault="000923CF">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: </w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>4.00</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="2">
+    <w:p w14:paraId="4AD50897" w14:textId="5C5F1FB6" w:rsidR="00EF50CF" w:rsidRDefault="00EF50CF">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: </w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>5.00</w:t>
+      </w:r>
+      <w:r>
+        <w:t>,</w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>6.02</w:t>
+      </w:r>
+      <w:r>
+        <w:t>,</w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>6.20</w:t>
+      </w:r>
+      <w:r>
+        <w:t>,</w:t>
+      </w:r>
+      <w:r w:rsidR="006C4A70">
+        <w:t>6.22</w:t>
+      </w:r>
+      <w:r w:rsidR="00083195">
+        <w:t>,</w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>7.01</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="3">
+    <w:p w14:paraId="14C366DC" w14:textId="0CCBB185" w:rsidR="00375BE3" w:rsidRDefault="00375BE3">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Some lockboxes have multiple </w:t>
+      </w:r>
+      <w:r w:rsidR="008D7572">
+        <w:t>addresses.</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="4">
+    <w:p w14:paraId="1D57F8C5" w14:textId="4E3473AB" w:rsidR="008D7572" w:rsidRDefault="008D7572" w:rsidP="008D7572">
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="00284E7E">
+        <w:rPr>
+          <w:sz w:val="20"/>
+          <w:szCs w:val="20"/>
+        </w:rPr>
+        <w:t>Each component in field order is separated by an underscore.</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="5">
+    <w:p w14:paraId="5B611235" w14:textId="1D12813C" w:rsidR="006671BB" w:rsidRDefault="006671BB">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidR="008D2AD1">
+        <w:t>Req#: 6.01</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="6">
+    <w:p w14:paraId="076572B2" w14:textId="566DADFF" w:rsidR="005751BC" w:rsidRDefault="005751BC">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 6.03</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="7">
+    <w:p w14:paraId="5087C1E8" w14:textId="2CE98C6D" w:rsidR="00990C2C" w:rsidRDefault="00990C2C">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: </w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>6.00</w:t>
+      </w:r>
+      <w:r w:rsidR="00DD4A8A">
+        <w:t>,</w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>6.14</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="8">
+    <w:p w14:paraId="67D6AB6F" w14:textId="072546E9" w:rsidR="00DD4A8A" w:rsidRDefault="00DD4A8A">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: </w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>6.09</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="9">
+    <w:p w14:paraId="33F5E3C0" w14:textId="050A1A4B" w:rsidR="003800FF" w:rsidRDefault="003800FF">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 6.05</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="10">
+    <w:p w14:paraId="4DC6DC57" w14:textId="764E8483" w:rsidR="00343325" w:rsidRDefault="00343325">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 6.18</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="11">
+    <w:p w14:paraId="65312F61" w14:textId="6F9F5B00" w:rsidR="00363DBB" w:rsidRDefault="00363DBB">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Each document type has different field requirements.</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="12">
+    <w:p w14:paraId="3E7FB324" w14:textId="215FF249" w:rsidR="00363DBB" w:rsidRDefault="00363DBB">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 6.08,6.15. All documents with a document category of check data fields must be classified as a Check.</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="13">
+    <w:p w14:paraId="0609FDC1" w14:textId="6E2E4FF4" w:rsidR="00363DBB" w:rsidRDefault="00363DBB">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> An Envelope has no subclassification.</w:t>
+      </w:r>
+      <w:r w:rsidR="00DD6FFC">
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve">A Supplemental can have a subclassification Stub or a </w:t>
+      </w:r>
+      <w:proofErr w:type="spellStart"/>
+      <w:r>
+        <w:t>CreditCard</w:t>
+      </w:r>
+      <w:proofErr w:type="spellEnd"/>
+      <w:r>
+        <w:t>.</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="14">
+    <w:p w14:paraId="42B1FB47" w14:textId="2DFBECC9" w:rsidR="00363DBB" w:rsidRDefault="00363DBB">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 6.11</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="15">
+    <w:p w14:paraId="38E70853" w14:textId="6F4DF367" w:rsidR="00363DBB" w:rsidRDefault="00363DBB">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 6.12</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="16">
+    <w:p w14:paraId="5EB340E4" w14:textId="2E920E77" w:rsidR="004C58F8" w:rsidRDefault="004C58F8">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 6.13</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="17">
+    <w:p w14:paraId="258CD6A0" w14:textId="012A5F45" w:rsidR="004B7614" w:rsidRDefault="004B7614">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 6.16</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="18">
+    <w:p w14:paraId="365E336C" w14:textId="1DC0952F" w:rsidR="001F1A17" w:rsidRDefault="001F1A17">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 3.01</w:t>
+      </w:r>
+      <w:r w:rsidR="002C3A82">
+        <w:t>, 3.02</w:t>
+      </w:r>
+      <w:r w:rsidR="003F0B90">
+        <w:t>, 3.03</w:t>
+      </w:r>
+      <w:r w:rsidR="00C55C70">
+        <w:t>, 3.04</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="19">
+    <w:p w14:paraId="400B634F" w14:textId="10156783" w:rsidR="00A569ED" w:rsidRDefault="00A569ED">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 6.04</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="20">
+    <w:p w14:paraId="06EC7A30" w14:textId="73E2CF6D" w:rsidR="00990C2C" w:rsidRDefault="00990C2C">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: </w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>6.10</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="21">
+    <w:p w14:paraId="6B7D9D71" w14:textId="76989B48" w:rsidR="00EE46FB" w:rsidRDefault="00EE46FB">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: </w:t>
+      </w:r>
+      <w:r w:rsidR="003C5317">
+        <w:t xml:space="preserve">6.07, </w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>6.21</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="22">
+    <w:p w14:paraId="3168D735" w14:textId="47B36E2D" w:rsidR="008B5744" w:rsidRDefault="008B5744">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: </w:t>
+      </w:r>
+      <w:r w:rsidR="000B7AF3">
+        <w:t>7.00</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:id="23">
+    <w:p w14:paraId="74457CBA" w14:textId="348C9F36" w:rsidR="001C16A5" w:rsidRDefault="001C16A5">
+      <w:pPr>
+        <w:pStyle w:val="FootnoteText"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="FootnoteReference"/>
+        </w:rPr>
+        <w:footnoteRef/>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Req#: 7.02</w:t>
+      </w:r>
+    </w:p>
+  </w:footnote>
+</w:footnotes>

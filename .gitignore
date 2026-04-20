@@ -1,0 +1,90 @@
+# =========================
+# Java / Spring Boot
+# =========================
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# =========================
+# Maven
+# =========================
+.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+
+# =========================
+# Gradle
+# =========================
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# =========================
+# IDE - IntelliJ IDEA
+# =========================
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# =========================
+# IDE - Eclipse
+# =========================
+.project
+.classpath
+.settings/
+.springBeans
+.sts4-cache/
+
+# =========================
+# IDE - VS Code
+# =========================
+.vscode/
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# Temp / Cache
+# =========================
+tmp/
+temp/
+.cache/
+
+# =========================
+# Environment / Secrets
+# =========================
+.env
+.env.*
+application-local.yml
+application-dev.yml
+
+# =========================
+# Test Output
+# =========================
+test-output/
+
+# =========================
+# Coverage
+# =========================
+coverage/
+*.exec
+
+# =========================
+# Docker (optional)
+# =========================
+docker-compose.override.yml
+springboot/target/

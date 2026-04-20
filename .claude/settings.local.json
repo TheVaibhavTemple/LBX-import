@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ':*)",
+      "Bash(grep -B5 '\"PostalCode\":\\\\s*\"[0-9]{1,4}\"' \"D:/ibox/lockbox import/DIGLBX_Aspec_20260415T204530.json\")",
+      "Bash(grep -B5 '\"PostalCode\":\\\\s*\"[0-9]{6,}\"' \"D:/ibox/lockbox import/DIGLBX_Aspec_20260415T204530.json\")",
+      "Bash(grep -A1 '\"PostalCode\": \"[0-9]\\\\{1,4\\\\}\"' \"D:/ibox/lockbox import/DIGLBX_Aspec_20260415T204530.json\")",
+      "Bash(python3 -c ':*)",
+      "Bash(node -e ':*)",
+      "Bash(grep -v \"//\")"
+    ]
+  }
+}

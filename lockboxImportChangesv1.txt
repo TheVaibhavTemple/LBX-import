@@ -1,0 +1,67 @@
+CREATE TABLE ibox.ibox_file_spec (
+	file_spec_id serial4 NOT NULL,
+	provider_id int4 NOT NULL,
+	client_id int4 NULL,
+	file_name_pattern varchar(100) NOT NULL,
+	file_type varchar(50) NULL,
+	transfer_type varchar(20) NOT NULL,
+	transfer_config jsonb NULL,
+	description text NULL,
+	modified_by int8 NULL,
+	created_at timestamp DEFAULT now() NOT NULL,
+	updated_at timestamp DEFAULT now() NOT NULL,
+	is_active bool DEFAULT true NOT NULL,
+	inbound_filepath varchar(255) NULL,
+	confirmation_filepath varchar(255) NULL,
+	printfile_path varchar(255) NULL,
+	ack_filepath varchar(50) NULL,
+	client_code varchar(20) NULL,
+	CONSTRAINT ibox_file_spec_pkey PRIMARY KEY (file_spec_id),
+	CONSTRAINT ibox_file_spec_client_id_fkey FOREIGN KEY (client_id) REFERENCES ibox.ibox_client(client_id),
+	CONSTRAINT ibox_file_spec_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES ibox.ibox_provider(provider_id)
+);
+
+
+
+CREATE TABLE ibox.ibox_provider (
+	provider_id serial4 NOT NULL,
+	provider_name varchar(100) NOT NULL,
+	client_id int4 NULL,
+	email varchar(100) NULL,
+	phone varchar(20) NULL,
+	address_line1 varchar(100) NULL,
+	address_line2 varchar(100) NULL,
+	city varchar(50) NULL,
+	state varchar(50) NULL,
+	postal_code varchar(20) NULL,
+	country varchar(50) NULL,
+	internal bool DEFAULT false NOT NULL,
+	modified_by int8 NULL,
+	created_at timestamp DEFAULT now() NOT NULL,
+	updated_at timestamp DEFAULT now() NOT NULL,
+	is_active bool DEFAULT true NOT NULL,
+	calendar_id int4 NULL,
+	CONSTRAINT ibox_provider_pkey PRIMARY KEY (provider_id),
+	CONSTRAINT ibox_provider_calendar_id_fkey FOREIGN KEY (calendar_id) REFERENCES ibox.ibox_calendar_master(calendar_id),
+	CONSTRAINT ibox_provider_client_id_fkey FOREIGN KEY (client_id) REFERENCES ibox.ibox_client(client_id)
+);
+CREATE INDEX idx_provider_client_id ON ibox.ibox_provider USING btree (client_id);
+
+
+
+
+CREATE TABLE ibox.ibox_application (
+	application_id serial4 NOT NULL,
+	lob_id int4 NULL,
+	application_name varchar(100) NULL,
+	description text NULL,
+	is_active bool NOT NULL,
+	modified_by int8 NULL,
+	created_at timestamp NOT NULL,
+	updated_at timestamp NOT NULL,
+	app_shortname varchar(50) NULL,
+	worksourceid int8 NULL,
+	CONSTRAINT ibox_application_pkey PRIMARY KEY (application_id),
+	CONSTRAINT ibox_application_lob_id_fkey FOREIGN KEY (lob_id) REFERENCES ibox.ibox_lines_of_business(lob_id)
+);
+
