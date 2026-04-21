@@ -9,10 +9,12 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
+import com.networknt.schema.InputFormat;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.dialect.Dialects;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
@@ -63,9 +65,9 @@ public class LockboxFileParser {
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    /** Matches paths like  $.Lockboxes[5]  or  $.Lockboxes[5].PostalCode */
+    /** Matches paths like /Lockboxes/5 or /Lockboxes/5/PostalCode */
     private static final Pattern LOCKBOX_INDEX_PATTERN =
-        Pattern.compile("\\$\\.Lockboxes\\[(\\d+)\\]");
+        Pattern.compile("\\/Lockboxes\\/(\\d+)");
 
     private final ObjectMapper            objectMapper;
     private final Validator               validator;
@@ -202,13 +204,13 @@ public class LockboxFileParser {
      * Any violation immediately throws EV-200.
      */
     private void validateAgainstSchema(JsonNode jsonNode, String fileName) {
-        Set<ValidationMessage> violations = runSchema(jsonNode, fileName);
+        List<Error> violations = runSchema(jsonNode, fileName);
         if (violations.isEmpty()) {
             log.debug("JSON schema validation passed for '{}'", fileName);
             return;
         }
         List<String> messages = violations.stream()
-            .map(ValidationMessage::getMessage)
+            .map(Error::getMessage)
             .sorted()
             .toList();
         String detail = String.join("\n  ", messages);
@@ -235,7 +237,7 @@ public class LockboxFileParser {
     private void validateSchemaAndCollect(JsonNode jsonNode, String fileName,
                                           List<RejectedEntry> rejected,
                                           Set<String> rejectedKeys) {
-        Set<ValidationMessage> violations = runSchema(jsonNode, fileName);
+        List<Error> violations = runSchema(jsonNode, fileName);
         if (violations.isEmpty()) {
             log.debug("JSON schema validation passed for '{}'", fileName);
             return;
@@ -245,7 +247,7 @@ public class LockboxFileParser {
         List<String>              fileLevelMsgs    = new ArrayList<>();
         Map<Integer, List<String>> perRecordMsgs   = new TreeMap<>();
 
-        for (ValidationMessage vm : violations) {
+        for (Error vm : violations) {
             int idx = extractLockboxIndex(vm);
             if (idx >= 0) {
                 perRecordMsgs.computeIfAbsent(idx, k -> new ArrayList<>())
@@ -297,18 +299,17 @@ public class LockboxFileParser {
      * Loads DIGLBX_ASPEC.schema.json from the classpath and runs validation.
      * Returns an empty set if the schema file cannot be found (graceful degradation).
      */
-    private Set<ValidationMessage> runSchema(JsonNode jsonNode, String fileName) {
+    private List<Error> runSchema(JsonNode jsonNode, String fileName) {
         try (var schemaStream = getClass().getClassLoader()
                 .getResourceAsStream("DIGLBX_ASPEC.schema.json")) {
 
             if (schemaStream == null) {
                 log.warn("DIGLBX_ASPEC.schema.json not found on classpath – skipping schema validation");
-                return Collections.emptySet();
+                return Collections.emptyList();
             }
 
-            JsonSchema schema = JsonSchemaFactory
-                .getInstance(SpecVersion.VersionFlag.V7)
-                .getSchema(schemaStream);
+            Schema schema = SchemaRegistry.withDialect(Dialects.getDraft7())
+                .getSchema(schemaStream, InputFormat.JSON);
 
             return schema.validate(jsonNode);
 
@@ -331,14 +332,14 @@ public class LockboxFileParser {
      *
      * <p>Example paths handled:
      * <pre>
-     *   $.Lockboxes[5].PostalCode  → 5
-     *   $.SummaryInfo.LockboxCount → -1 (file-level)
+     *   /Lockboxes/5/PostalCode  → 5
+     *   /SummaryInfo/LockboxCount → -1 (file-level)
      * </pre>
      */
-    private int extractLockboxIndex(ValidationMessage vm) {
-        String msg = vm.getMessage();
-        if (msg == null) return -1;
-        Matcher m = LOCKBOX_INDEX_PATTERN.matcher(msg);
+    private int extractLockboxIndex(Error vm) {
+        String path = vm.getInstanceLocation().toString();
+        if (path == null) return -1;
+        Matcher m = LOCKBOX_INDEX_PATTERN.matcher(path);
         return m.find() ? Integer.parseInt(m.group(1)) : -1;
     }
 
