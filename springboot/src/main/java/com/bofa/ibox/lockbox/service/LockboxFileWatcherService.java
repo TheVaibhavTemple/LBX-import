@@ -9,6 +9,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.io.IOException;
 
 /**
  * Polls the configured {@code lockbox.import.in-dir} for new
@@ -135,11 +138,12 @@ public class LockboxFileWatcherService {
     private void moveToDir(File source, String targetName, String destDirPath, String label) {
         ensureDir(destDirPath, label);
         File dest = new File(destDirPath, targetName);
-        if (source.renameTo(dest)) {
+        try {
+            Files.move(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
             log.info("'{}' → {}/{}", targetName, label, targetName);
-        } else {
-            log.error("Failed to move '{}' to {} dir (source path: {})",
-                targetName, label, source.getAbsolutePath());
+        } catch (IOException e) {
+            log.error("Failed to move '{}' to {} dir (source path: {}). Error: {}",
+                targetName, label, source.getAbsolutePath(), e.getMessage());
         }
     }
 

@@ -166,8 +166,8 @@ public class LockboxFileParser {
      * Catches malformed JSON and maps it to EV-200.
      */
     private JsonNode parseToNode(File file, String fileName) throws IOException {
-        try {
-            return objectMapper.readTree(file);
+        try (var fis = new java.io.FileInputStream(file)) {
+            return objectMapper.readTree(fis);
         } catch (JsonParseException e) {
             String msg = "Malformed JSON in '" + fileName + "' – "
                 + e.getOriginalMessage()
