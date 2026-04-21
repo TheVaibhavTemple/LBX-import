@@ -1,0 +1,32 @@
+{
+    "SpecificationIdentifier": "1.6.0",
+	"Lockboxes": [{
+            "GlobalClientIdentifier": {
+				"FamilyGCI": "111111",
+				"PrimaryGCI": "222222"
+			},
+			"SiteIdentifier": "DAL",
+            "LockboxNumber": "123456",
+            "LockboxName": "Sears",
+            "LockboxStatus": "Active",
+            "DigitalIndicator": true,
+            "PostalCode": "123456",
+            "AddressList": [{
+                    "AddressType": "Mailing",
+                    "AddressCompanyName": "Taylor Farms Florida Inc",
+                    "AddressAttn": "Kathy Blair",
+                    "AddressStreet1": "7492 Chancellor DR",
+                    "AddressStreet2": "AddrStreet2",
+                    "AddressCity": "Orlando",
+                    "AddressState": "FL",
+                    "AddressPostalCode": "32809",
+                    "AddressCountry": "US"
+                }
+            ]
+        }
+    ],
+    "SummaryInfo": {
+        "ASPECDate": "2026-04-20",
+        "LockboxCount": 1
+    }
+}
