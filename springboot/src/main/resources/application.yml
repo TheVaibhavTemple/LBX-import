@@ -2,15 +2,8 @@ spring:
   application:
     name: lockbox-import
 
-  jackson:
-    deserialization:
-      fail-on-unknown-properties: false   # provider may add new fields in future spec versions
-    default-property-inclusion: non_null
-    serialization:
-      write-dates-as-timestamps: false    # ISO-8601 dates ("2026-04-16"), not epoch millis
-
   datasource:
-    url: ${DB_URL:jdbc:postgresql://192.168.1.3:5432/postgres?currentSchema=ibox}
+    url: ${DB_URL:jdbc:postgresql://192.168.1.2:5432/postgres?currentSchema=ibox}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
