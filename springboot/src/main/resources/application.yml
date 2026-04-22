@@ -1,44 +1,178 @@
 spring:
   application:
     name: lockbox-import
+  profiles:
+    active: local
 
-  datasource:
-    url: ${DB_URL:jdbc:postgresql://192.168.1.4:5432/postgres?currentSchema=ibox}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:admin}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      pool-name: LockboxHikariPool
-      maximum-pool-size: 5
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-
-# Lockbox import settings
-lockbox:
-  import:
-    # ── Directories ───────────────────────────────────────────────────
-    in-dir:        ${LOCKBOX_IN_DIR:D:\ibox\file\in}           # scheduler watches this dir
-    processed-dir: ${LOCKBOX_PROCESSED_DIR:D:\ibox\file\processed}  # moved here on success
-    error-dir:     ${LOCKBOX_ERROR_DIR:D:\ibox\file\error}     # moved here on failure
-
-    # ── Scheduler ─────────────────────────────────────────────────────
-    scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
-    scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}      # 10 sec
-    scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}  # 5 sec warm-up
-
-    # ── Import job ────────────────────────────────────────────────────
-    # provider-id / lob-id / application-id are resolved dynamically from
-    # ibox_file_spec at runtime – no longer configured here.
-    modified-by: LOCKBOX_IMPORT_JOB
-    batch-size:     1000         # rows per JDBC batch insert into staging
-    max-lockbox-count:     50000 # EF-108: reject file if lockbox count exceeds this
-    max-file-age-days:     2     # EF-106: reject file if ASPECDate is older than N days
-    staging-retention-days: 30  # days to keep staging rows before purge service removes them
-    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}  # PostgreSQL schema owning lockbox tables + procedure
-
+# ================= Global Settings (All Profiles) =================
 logging:
   level:
     com.bofa.ibox.lockbox: INFO
     org.springframework.jdbc: WARN
+
+# ================= LOCAL =================
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres?currentSchema=ibox}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:admin}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 25
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      pool-name: HikariCP
+
+lockbox:
+  import:
+    in-dir:        ${LOCKBOX_IN_DIR:D:\ibox\file\in}
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:D:\ibox\file\processed}
+    error-dir:     ${LOCKBOX_ERROR_DIR:D:\ibox\file\error}
+    scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
+    scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}
+    scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}
+    modified-by: LOCKBOX_IMPORT_JOB
+    batch-size:     1000
+    max-lockbox-count:     50000
+    max-file-age-days:     2
+    staging-retention-days: 30
+    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
+
+# ================= DEV =================
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://psqlshareddeveus1.postgres.database.azure.com:5432/ibox?currentSchema=public}
+    username: ${DB_USERNAME:dev_support}
+    password: ${DB_PASSWORD:wK#Uc75~h2*e}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 25
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      pool-name: HikariCP
+
+lockbox:
+  import:
+    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/check/in}
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/check/in/processed}
+    error-dir:     ${LOCKBOX_ERROR_DIR:D:/data/ibox/check/in/error}
+    scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
+    scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}
+    scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}
+    modified-by: LOCKBOX_IMPORT_JOB
+    batch-size:     1000
+    max-lockbox-count:     50000
+    max-file-age-days:     2
+    staging-retention-days: 30
+    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
+# ================= QA =================
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://psqlshareddeveus1.postgres.database.azure.com:5432/ibox?currentSchema=ibox_qa}
+    username: ${DB_USERNAME:dev_support}
+    password: ${DB_PASSWORD:wK#Uc75~h2*e}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 25
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      pool-name: HikariCP
+
+lockbox:
+  import:
+    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/check/in}
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/check/in/processed}
+    error-dir:     ${LOCKBOX_ERROR_DIR:D:/data/ibox/check/in/error}
+    scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
+    scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}
+    scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}
+    modified-by: LOCKBOX_IMPORT_JOB
+    batch-size:     1000
+    max-lockbox-count:     50000
+    max-file-age-days:     2
+    staging-retention-days: 30
+    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
+# ================= UAT =================
+---
+spring:
+  config:
+    activate:
+      on-profile: uat
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://psqlshareddeveus1.postgres.database.azure.com:5432/ibox?currentSchema=ibox_uat}
+    username: ${DB_USERNAME:dev_support}
+    password: ${DB_PASSWORD:wK#Uc75~h2*e}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 25
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      pool-name: HikariCP
+
+lockbox:
+  import:
+    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/check/in}
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/check/in/processed}
+    error-dir:     ${LOCKBOX_ERROR_DIR:D:/data/ibox/check/in/error}
+    scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
+    scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}
+    scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}
+    modified-by: LOCKBOX_IMPORT_JOB
+    batch-size:     1000
+    max-lockbox-count:     50000
+    max-file-age-days:     2
+    staging-retention-days: 30
+    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
+# ================= PROD =================
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://psqlecxprodeus1.exelatech.cloud:5432/ibox?currentSchema=ibox_prod}
+    username: ${DB_USERNAME:ibox_user}
+    password: ${DB_PASSWORD:ibox_user123#}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 25
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      pool-name: HikariCP
+
+lockbox:
+  import:
+    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/check/in}
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/check/in/processed}
+    error-dir:     ${LOCKBOX_ERROR_DIR:D:/data/ibox/check/in/error}
+    scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
+    scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}
+    scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}
+    modified-by: LOCKBOX_IMPORT_JOB
+    batch-size:     1000
+    max-lockbox-count:     50000
+    max-file-age-days:     2
+    staging-retention-days: 30
+    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
