@@ -47,7 +47,7 @@
                     },
                     "PostalCode": {
                         "type": "string",
-                        "pattern": "^[0-9]{5}(-[0-9]{4})?$"
+                        "pattern": "^[0-9]{5,6}(-[0-9]{4})?$"
                     },
                     "AddressList": {
                         "type": "array",
@@ -69,7 +69,8 @@
                     }
                 },
                 "if": {
-                    "properties": { "DigitalIndicator": { "const": true } }
+                    "properties": { "DigitalIndicator": { "const": true } },
+                    "required": ["DigitalIndicator"]
                 },
                 "then": {
                     "properties": {
@@ -81,7 +82,7 @@
                                     "AddressStreet1": { "minLength": 1 },
                                     "AddressCity": { "minLength": 1 },
                                     "AddressState": { "minLength": 2, "maxLength": 2 },
-                                    "AddressPostalCode": { "pattern": "^[0-9]{5}(-[0-9]{4})?$" }
+                                    "AddressPostalCode": { "pattern": "^[0-9]{5,6}(-[0-9]{4})?$" }
                                 },
                                 "required": [
                                     "AddressType",
@@ -102,10 +103,7 @@
                             "items": {
                                 "properties": {
                                     "AddressPostalCode": {
-                                        "anyOf": [
-                                            { "minLength": 0, "maxLength": 0 },
-                                            { "pattern": "^[0-9]{5}(-[0-9]{4})?$" }
-                                        ]
+                                        "pattern": "^$|^[0-9]{5,6}(-[0-9]{4})?$"
                                     }
                                 }
                             }
