@@ -1,5 +1,8 @@
 package com.bofa.ibox.lockbox;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -52,4 +55,15 @@ public final class LockboxConstants {
      * The column is NOT NULL in the DB; empty string means "no PO box".
      */
     public static final String EMPTY_POST_OFFICE_BOX = "";
+
+    // ── Validation Constants ──────────────────────────────────────────
+
+    /** Valid AddressType values per the DIGLBX_Aspec spec. */
+    public static final Set<String> ALLOWED_ADDRESS_TYPES = new HashSet<>(Arrays.asList(
+        "Mailing", "Alternate", "Lockbox"
+    ));
+
+    /** Standard 5 or 9 digit US ZIP code format. */
+    public static final Pattern POSTAL_CODE_PATTERN =
+        Pattern.compile("^[0-9]{5}(-[0-9]{4})?$");
 }

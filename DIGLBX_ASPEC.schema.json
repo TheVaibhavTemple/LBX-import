@@ -55,50 +55,60 @@
                         "items": {
                             "type": "object",
                             "properties": {
-                                "AddressType": {
-                                    "type": "string",
-                                    "enum": ["Mailing", "Alternate", "Lockbox"]
+                                "AddressType": { "type": "string" },
+                                "AddressCompanyName": { "type": "string" },
+                                "AddressAttn": { "type": "string" },
+                                "AddressStreet1": { "type": "string" },
+                                "AddressStreet2": { "type": "string" },
+                                "AddressCity": { "type": "string" },
+                                "AddressState": { "type": "string" },
+                                "AddressPostalCode": { "type": "string" },
+                                "AddressCountry": { "type": "string" }
+                            }
+                        }
+                    }
+                },
+                "if": {
+                    "properties": { "DigitalIndicator": { "const": true } }
+                },
+                "then": {
+                    "properties": {
+                        "AddressList": {
+                            "items": {
+                                "properties": {
+                                    "AddressType": { "enum": ["Mailing", "Alternate", "Lockbox"] },
+                                    "AddressCompanyName": { "minLength": 1 },
+                                    "AddressStreet1": { "minLength": 1 },
+                                    "AddressCity": { "minLength": 1 },
+                                    "AddressState": { "minLength": 2, "maxLength": 2 },
+                                    "AddressPostalCode": { "pattern": "^[0-9]{5}(-[0-9]{4})?$" }
                                 },
-                                "AddressCompanyName": {
-                                    "type": "string",
-                                    "minLength": 1
-                                },
-                                "AddressAttn": {
-                                    "type": "string"
-                                },
-                                "AddressStreet1": {
-                                    "type": "string",
-                                    "minLength": 1
-                                },
-                                "AddressStreet2": {
-                                    "type": "string"
-                                },
-                                "AddressCity": {
-                                    "type": "string",
-                                    "minLength": 1
-                                },
-                                "AddressState": {
-                                    "type": "string",
-                                    "minLength": 2,
-                                    "maxLength": 2
-                                },
-                                "AddressPostalCode": {
-                                    "type": "string",
-                                    "pattern": "^[0-9]{5}(-[0-9]{4})?$"
-                                },
-                                "AddressCountry": {
-                                    "type": "string"
+                                "required": [
+                                    "AddressType",
+                                    "AddressCompanyName",
+                                    "AddressStreet1",
+                                    "AddressCity",
+                                    "AddressState",
+                                    "AddressPostalCode",
+                                    "AddressCountry"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "else": {
+                    "properties": {
+                        "AddressList": {
+                            "items": {
+                                "properties": {
+                                    "AddressPostalCode": {
+                                        "anyOf": [
+                                            { "minLength": 0, "maxLength": 0 },
+                                            { "pattern": "^[0-9]{5}(-[0-9]{4})?$" }
+                                        ]
+                                    }
                                 }
-                            },
-                            "required": [
-                                "AddressType",
-                                "AddressCompanyName",
-                                "AddressStreet1",
-                                "AddressCity",
-                                "AddressState",
-                                "AddressPostalCode",
-                                "AddressCountry"
-                            ]
+                            }
                         }
                     }
                 },

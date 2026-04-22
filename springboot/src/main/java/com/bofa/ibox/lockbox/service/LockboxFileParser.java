@@ -504,70 +504,87 @@ public class LockboxFileParser {
     // ====================================================================
 
     /**
-     * Validates that every record with {@code DigitalIndicator=true} has:
+     * Performs conditional address validation based on DigitalIndicator.
+     *
+     * <p>Rules:
      * <ul>
-     *   <li>EV-204: PostalCode with at least 5 characters</li>
-     *   <li>EV-203: Non-blank AddressStreet1, AddressCity, and AddressState
-     *       on every address entry</li>
+     *   <li><b>All Records:</b> If AddressPostalCode is provided (not empty), it must match the 5-9 digit format.</li>
+     *   <li><b>Digital Records (DigitalIndicator=true):</b> All address fields (Type, Company, Street1, City, State, ZIP)
+     *       are required and must match strict specification formats (Enum, Length, Pattern).</li>
+     *   <li><b>Non-Digital Records:</b> Missing or empty address fields are ignored (except for the Zip format check).</li>
      * </ul>
-     * Non-digital records are skipped entirely.
-     * Already-rejected records are also skipped.
      */
     private void validateDigitalAddressPerRecord(List<LockboxEntry> lockboxes,
                                                  List<RejectedEntry> rejected,
                                                  Set<String> rejectedKeys) {
         for (LockboxEntry entry : lockboxes) {
-            if (!Boolean.TRUE.equals(entry.getDigitalIndicator())) continue;
-
             String key = entry.getSiteIdentifier() + "|" + entry.getLockboxNumber();
             if (rejectedKeys.contains(key)) continue;
 
-            // EV-204: PostalCode must be at least 5 digits
-            String postalCode = entry.getPostalCode();
-            if (postalCode != null && !postalCode.isBlank() && postalCode.length() < 5) {
-                String reason = String.format(
-                    "[EV-204] Digital record has PostalCode='%s' which is fewer than 5 digits",
-                    postalCode);
-                log.warn("Marking record as REJECTED – LockboxNumber={} SiteIdentifier={}: {}",
-                    entry.getLockboxNumber(), entry.getSiteIdentifier(), reason);
-                rejected.add(RejectedEntry.builder()
-                    .lockboxNumber  (entry.getLockboxNumber())
-                    .siteIdentifier (entry.getSiteIdentifier())
-                    .postOfficeBox  (LockboxConstants.EMPTY_POST_OFFICE_BOX)
-                    .reason         (reason)
-                    .build());
-                rejectedKeys.add(key);
-                continue;
+            boolean isDigital = Boolean.TRUE.equals(entry.getDigitalIndicator());
+
+            // 1. Digital-only: EV-204 PostalCode must be at least 5 digits
+            if (isDigital) {
+                String entryPostalCode = entry.getPostalCode();
+                if (entryPostalCode != null && !entryPostalCode.isBlank() && entryPostalCode.length() < 5) {
+                    rejectRecord(entry, rejected, rejectedKeys, key,
+                        "[EV-204] Digital record has PostalCode='" + entryPostalCode + "' which is fewer than 5 digits");
+                    continue;
+                }
             }
 
-            // EV-203: AddressStreet1, AddressCity, AddressState must not be blank
+            // 2. Validate AddressList
             if (entry.getAddressList() == null) continue;
             for (LockboxAddress addr : entry.getAddressList()) {
-                boolean streetBlank = addr.getAddressStreet1() == null || addr.getAddressStreet1().isBlank();
-                boolean cityBlank   = addr.getAddressCity()    == null || addr.getAddressCity().isBlank();
-                boolean stateBlank  = addr.getAddressState()   == null || addr.getAddressState().isBlank();
+                List<String> errors = new ArrayList<>();
 
-                if (streetBlank || cityBlank || stateBlank) {
-                    List<String> blanks = new ArrayList<>();
-                    if (streetBlank) blanks.add("AddressStreet1");
-                    if (cityBlank)   blanks.add("AddressCity");
-                    if (stateBlank)  blanks.add("AddressState");
-                    String reason = String.format(
-                        "[EV-203] Digital record has blank address field(s): %s",
-                        String.join(", ", blanks));
-                    log.warn("Marking record as REJECTED – LockboxNumber={} SiteIdentifier={}: {}",
-                        entry.getLockboxNumber(), entry.getSiteIdentifier(), reason);
-                    rejected.add(RejectedEntry.builder()
-                        .lockboxNumber  (entry.getLockboxNumber())
-                        .siteIdentifier (entry.getSiteIdentifier())
-                        .postOfficeBox  (LockboxConstants.EMPTY_POST_OFFICE_BOX)
-                        .reason         (reason)
-                        .build());
-                    rejectedKeys.add(key);
-                    break;  // one rejection entry per lockbox
+                // Global check: Postal Code Format (only if provided)
+                String addrZip = addr.getAddressPostalCode();
+                if (addrZip != null && !addrZip.isBlank()) {
+                    if (!LockboxConstants.POSTAL_CODE_PATTERN.matcher(addrZip).matches()) {
+                        errors.add("AddressPostalCode has invalid format: " + addrZip);
+                    }
+                }
+
+                // Digital-only Strict Checks
+                if (isDigital) {
+                    if (addr.getAddressType() == null || !LockboxConstants.ALLOWED_ADDRESS_TYPES.contains(addr.getAddressType())) {
+                        errors.add("AddressType must be Mailing, Alternate, or Lockbox (found '" + addr.getAddressType() + "')");
+                    }
+                    if (isBlank(addr.getAddressCompanyName())) errors.add("AddressCompanyName is blank");
+                    if (isBlank(addr.getAddressStreet1()))     errors.add("AddressStreet1 is blank");
+                    if (isBlank(addr.getAddressCity()))        errors.add("AddressCity is blank");
+                    if (isBlank(addr.getAddressState()) || addr.getAddressState().length() != 2) {
+                        errors.add("AddressState must be a 2-character code");
+                    }
+                    if (isBlank(addr.getAddressPostalCode()))  errors.add("AddressPostalCode is blank");
+                    if (isBlank(addr.getAddressCountry()))     errors.add("AddressCountry is blank");
+                }
+
+                if (!errors.isEmpty()) {
+                    String prefix = isDigital ? "[EV-203] Digital address violation(s): " : "Address violation(s): ";
+                    rejectRecord(entry, rejected, rejectedKeys, key, prefix + String.join("; ", errors));
+                    break; // one rejection per lockbox
                 }
             }
         }
+    }
+
+    private boolean isBlank(String s) {
+        return s == null || s.isBlank();
+    }
+
+    private void rejectRecord(LockboxEntry entry, List<RejectedEntry> rejected,
+                              Set<String> rejectedKeys, String key, String reason) {
+        log.warn("Marking record as REJECTED – LockboxNumber={} SiteIdentifier={}: {}",
+            entry.getLockboxNumber(), entry.getSiteIdentifier(), reason);
+        rejected.add(RejectedEntry.builder()
+            .lockboxNumber  (entry.getLockboxNumber())
+            .siteIdentifier (entry.getSiteIdentifier())
+            .postOfficeBox  (LockboxConstants.EMPTY_POST_OFFICE_BOX)
+            .reason         (reason)
+            .build());
+        rejectedKeys.add(key);
     }
 
     // ====================================================================

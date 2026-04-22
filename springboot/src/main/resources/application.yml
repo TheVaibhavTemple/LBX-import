@@ -3,7 +3,7 @@ spring:
     name: lockbox-import
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://192.168.1.2:5432/postgres?currentSchema=ibox}
+    url: ${DB_URL:jdbc:postgresql://192.168.1.4:5432/postgres?currentSchema=ibox}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
