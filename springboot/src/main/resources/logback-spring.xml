@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Include Spring Boot base logging configuration -->
+    <include
+        resource="org/springframework/boot/logging/logback/base.xml" />
+
+    <!-- Define a logger for specific messages -->
+    <logger name="PROTOCOL_MESSAGE" level="DEBUG" />
+
+    <!-- Define a rolling file appender -->
+    <appender name="fileAppender"
+        class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/data/ibox/log/lockbox-import/ibox_lockbox-import.log</file>
+
+        <!-- Configure rolling policy -->
+        <rollingPolicy
+            class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>
+                /data/ibox/log/lockbox-import/ibox_lockbox-import.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!--
+            <fileNamePattern>D:\ibox\file\log\ibox_lockbox-import.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern> -->
+            <maxFileSize>10MB</maxFileSize> <!-- Maximum size of each log file -->
+            <totalSizeCap>2GB</totalSizeCap> <!-- Maximum total size of all archived log files -->
+            <maxHistory>60</maxHistory> <!-- Maximum number of archived log files to keep -->
+        </rollingPolicy>
+
+        <!-- Configure log message format -->
+        <encoder>
+            <pattern>%d %p %c{1} [%t] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Set root log level to INFO and reference file appender -->
+    <root level="INFO">
+        <appender-ref ref="fileAppender" />
+    </root>
+</configuration>
