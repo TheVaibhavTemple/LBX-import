@@ -47,7 +47,7 @@
                     },
                     "PostalCode": {
                         "type": "string",
-                        "pattern": "^[0-9]{5}(-[0-9]{4})?$"
+                        "pattern": "^[a-zA-Z0-9 -]{3,15}$"
                     },
                     "AddressList": {
                         "type": "array",
@@ -84,7 +84,7 @@
                                 },
                                 "AddressPostalCode": {
                                     "type": "string",
-                                    "pattern": "^[0-9]{5}(-[0-9]{4})?$"
+                                    "pattern": "^[a-zA-Z0-9 -]{3,15}$"
                                 },
                                 "AddressCountry": {
                                     "type": "string"

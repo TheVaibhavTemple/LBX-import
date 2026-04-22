@@ -471,13 +471,11 @@ public class LockboxFileParser {
             for (LockboxAddress addr : entry.getAddressList()) {
                 String addrZip = normaliseZip(addr.getAddressPostalCode());
                 if (lockboxZip != null && addrZip != null && !lockboxZip.equals(addrZip)) {
-                    throw new LockboxValidationException(ErrorCode.EV_202,
-                            String.format(
-                                    "LockboxNumber=%s: AddressPostalCode=%s does not match " +
-                                            "LockboxPostalCode=%s",
-                                    entry.getLockboxNumber(),
-                                    addr.getAddressPostalCode(),
-                                    entry.getPostalCode()));
+                    log.warn("LockboxNumber={}: AddressPostalCode={} does not match " +
+                                    "LockboxPostalCode={}",
+                            entry.getLockboxNumber(),
+                            addr.getAddressPostalCode(),
+                            entry.getPostalCode());
                 }
             }
         }
@@ -499,20 +497,8 @@ public class LockboxFileParser {
             for (LockboxAddress addr : entry.getAddressList()) {
                 String addrZip = normaliseZip(addr.getAddressPostalCode());
                 if (lockboxZip != null && addrZip != null && !lockboxZip.equals(addrZip)) {
-                    String reason = String.format(
-                            "[EV-202] AddressPostalCode=%s does not match LockboxPostalCode=%s",
-                            addr.getAddressPostalCode(), entry.getPostalCode());
-                    log.warn("Marking record as REJECTED – LockboxNumber={} " +
-                            "SiteIdentifier={}: {}", entry.getLockboxNumber(),
-                            entry.getSiteIdentifier(), reason);
-                    rejected.add(RejectedEntry.builder()
-                            .lockboxNumber(entry.getLockboxNumber())
-                            .siteIdentifier(entry.getSiteIdentifier())
-                            .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
-                            .reason(reason)
-                            .build());
-                    rejectedKeys.add(key);
-                    break; // one rejection entry per lockbox
+                    log.warn("[EV-202] AddressPostalCode={} does not match LockboxPostalCode={} for LockboxNumber={}",
+                            addr.getAddressPostalCode(), entry.getPostalCode(), entry.getLockboxNumber());
                 }
             }
         }
@@ -628,11 +614,11 @@ public class LockboxFileParser {
     private void warnClosedAndNonDigital(List<LockboxEntry> lockboxes) {
         for (LockboxEntry entry : lockboxes) {
             if ("Closed".equalsIgnoreCase(entry.getLockboxStatus())) {
-                // log.warn("[ET-300] Closed Box – LockboxNumber={} SiteIdentifier={}",
+                 log.warn("[ET-300] Closed Box – LockboxNumber={} SiteIdentifier={}",
                     entry.getLockboxNumber(), entry.getSiteIdentifier());
             }
             if (Boolean.FALSE.equals(entry.getDigitalIndicator())) {
-                // log.warn("[ET-301] Non-Digital Transaction – LockboxNumber={} SiteIdentifier={}",
+                 log.warn("[ET-301] Non-Digital Transaction – LockboxNumber={} SiteIdentifier={}",
                     entry.getLockboxNumber(), entry.getSiteIdentifier());
             }
         }

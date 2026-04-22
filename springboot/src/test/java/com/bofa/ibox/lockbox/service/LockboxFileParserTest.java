@@ -234,11 +234,19 @@ class LockboxFileParserTest {
 
         @Test
         void invalidAddressPostalCode_throwsEV200() {
-            File file = writeJson(validJson().replace("\"AddressPostalCode\": \"32809\"", "\"AddressPostalCode\": \"ABCDE\""));
+            // Symbols like '!' or '@' are not in our relaxed alphanumeric range [a-zA-Z0-9 -]
+            File file = writeJson(validJson().replace("\"AddressPostalCode\": \"32809\"", "\"AddressPostalCode\": \"!!!\""));
 
             assertThatThrownBy(() -> parser.parse(file.getAbsolutePath()))
                 .isInstanceOf(LockboxValidationException.class)
                 .hasMessageContaining("EV-200");
+        }
+
+        @Test
+        void alphanumericPostalCode_passes() throws Exception {
+            File file = writeJson(validJson().replace("\"AddressPostalCode\": \"32809\"", "\"AddressPostalCode\": \"ABC-123 XYZ\""));
+            assertThatCode(() -> parser.parse(file.getAbsolutePath()))
+                .doesNotThrowAnyException();
         }
     }
 
@@ -285,15 +293,13 @@ class LockboxFileParserTest {
     class EV202_AddressPostalCodeMismatch {
 
         @Test
-        void addressZipDiffersFromLockboxZip_throwsEV202() {
+        void addressZipDiffersFromLockboxZip_isWarningOnly() throws Exception {
             // lockbox PostalCode = 32809, address PostalCode = 90210 → mismatch
+            // Since we relaxed EV-202, it should no longer throw an exception
             File file = writeJson(validJson().replace("\"AddressPostalCode\": \"32809\"", "\"AddressPostalCode\": \"90210\""));
 
-            assertThatThrownBy(() -> parser.parse(file.getAbsolutePath()))
-                .isInstanceOf(LockboxValidationException.class)
-                .hasMessageContaining("EV-202")
-                .hasMessageContaining("90210")
-                .hasMessageContaining("32809");
+            assertThatCode(() -> parser.parse(file.getAbsolutePath()))
+                .doesNotThrowAnyException();
         }
 
         @Test

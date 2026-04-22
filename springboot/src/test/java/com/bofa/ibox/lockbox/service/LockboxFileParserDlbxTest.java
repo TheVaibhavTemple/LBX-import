@@ -364,8 +364,8 @@ class LockboxFileParserDlbxTest {
         }
 
         @Test
-        @DisplayName("EV-202 mismatch marks only the affected record, others pass")
-        void ev202Mismatch_marksOnlyAffectedRecord() throws Exception {
+        @DisplayName("EV-202 mismatch is warning-only: record is NOT rejected")
+        void ev202Mismatch_isWarningOnly() throws Exception {
             String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String json = """
                 {
@@ -379,19 +379,10 @@ class LockboxFileParserDlbxTest {
                         "AddressStreet1":"1 Main","AddressStreet2":"",
                         "AddressCity":"NYC","AddressState":"NY",
                         "AddressPostalCode":"90210","AddressCountry":"US"}]
-                    },
-                    {
-                      "SiteIdentifier": "ATL", "LockboxNumber": "000002",
-                      "LockboxName": "Match", "LockboxStatus": "Active",
-                      "DigitalIndicator": true, "PostalCode": "60601",
-                      "AddressList": [{"AddressType":"Lockbox","AddressCompanyName":"BofA",
-                        "AddressStreet1":"1 Main","AddressStreet2":"",
-                        "AddressCity":"Chicago","AddressState":"IL",
-                        "AddressPostalCode":"60601","AddressCountry":"US"}]
                     }
                   ],
                   "SummaryInfo": { "ASPECDate": \"""" + today + """
-                ", "LockboxCount": 2 }
+                ", "LockboxCount": 1 }
                 }
                 """;
 
@@ -401,12 +392,9 @@ class LockboxFileParserDlbxTest {
             com.bofa.ibox.lockbox.model.ParseResult result =
                 parser.parseWithResult(f.toString());
 
+            // Since EV-202 is now a warning, the record should be valid
             assertThat(result.getValidRows()).hasSize(1);
-            assertThat(result.getValidRows().get(0).getLockboxNumber()).isEqualTo("000002");
-
-            assertThat(result.getRejectedEntries()).hasSize(1);
-            assertThat(result.getRejectedEntries().get(0).getLockboxNumber()).isEqualTo("000001");
-            assertThat(result.getRejectedEntries().get(0).getReason()).contains("EV-202");
+            assertThat(result.getRejectedEntries()).isEmpty();
         }
 
         @Test
@@ -550,11 +538,11 @@ class LockboxFileParserDlbxTest {
         }
 
         @Test
-        @DisplayName("PostalCode pattern violation (< 5 digits) fails schema → EV-200")
+        @DisplayName("PostalCode pattern violation (< 3 digits) fails schema → EV-200")
         void postalCodeBadPattern_failsSchema() throws Exception {
             String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String json = lockboxJson(today, 1,
-                "\"PostalCode\": \"123\"", "\"AddressPostalCode\": \"60601\"");
+                "\"PostalCode\": \"12\"", "\"AddressPostalCode\": \"60601\"");
             Path f = tempDir.resolve("schema_bad_zip.json");
             Files.writeString(f, json);
 

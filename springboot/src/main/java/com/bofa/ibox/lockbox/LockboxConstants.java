@@ -63,7 +63,7 @@ public final class LockboxConstants {
         "Mailing", "Alternate", "Lockbox"
     ));
 
-    /** Standard 5 or 9 digit US ZIP code format (or 6 digits for Lockbox ID). */
+    /** Standard 5 or 9 digit US ZIP code format, or alphanumeric international codes (3-15 chars). */
     public static final Pattern POSTAL_CODE_PATTERN =
-        Pattern.compile("^[0-9]{5,6}(-[0-9]{4})?$");
+        Pattern.compile("^[a-zA-Z0-9 -]{3,15}$");
 }

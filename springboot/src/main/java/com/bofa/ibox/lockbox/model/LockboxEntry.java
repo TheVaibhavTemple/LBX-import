@@ -42,8 +42,8 @@ public class LockboxEntry {
     private Boolean digitalIndicator;
 
     @NotBlank
-    @Pattern(regexp = "^[0-9]{5}(-[0-9]{4})?$",
-             message = "PostalCode must be 5 or 9 digit ZIP")
+    @Pattern(regexp = "^[a-zA-Z0-9 -]{3,15}$",
+             message = "PostalCode must be 3-15 alphanumeric characters")
     @JsonProperty("PostalCode")
     private String postalCode;
 
