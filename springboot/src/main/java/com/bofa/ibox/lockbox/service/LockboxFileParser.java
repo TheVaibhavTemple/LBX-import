@@ -35,25 +35,25 @@ import java.util.regex.Pattern;
  *
  * Two validation modes:
  *
- *   parse()           – strict / fail-fast. Any violation (file or record level) throws
- *                       LockboxValidationException immediately. Used by unit tests.
+ * parse() – strict / fail-fast. Any violation (file or record level) throws
+ * LockboxValidationException immediately. Used by unit tests.
  *
- *   parseWithResult() – lenient / per-record. Used by the import service.
- *     ┌────────────────────────────────────────────────────────────────────┐
- *     │ FILE-LEVEL  (throws immediately – entire file is rejected)         │
- *     │   • Malformed JSON                                                 │
- *     │   • Missing top-level required fields (schema)                     │
- *     │   • EV-215 SummaryInfo.LockboxCount mismatch                       │
- *     │   • EF-106 ASPECDate too old or bad format                         │
- *     │   • EF-108 File exceeds max lockbox count                          │
- *     ├────────────────────────────────────────────────────────────────────┤
- *     │ RECORD-LEVEL (bad record is MARKED as REJECTED, rest continues)    │
- *     │   • Schema: wrong type, enum violation, pattern, required field     │
- *     │     missing inside a Lockboxes[N] entry                            │
- *     │   • Bean: @NotBlank / @Pattern / @Size on individual LockboxEntry  │
- *     │   • EV-202 AddressPostalCode ≠ LockboxPostalCode                   │
- *     │   • Duplicate (siteIdentifier, lockboxNumber) key in same file     │
- *     └────────────────────────────────────────────────────────────────────┘
+ * parseWithResult() – lenient / per-record. Used by the import service.
+ * ┌────────────────────────────────────────────────────────────────────┐
+ * │ FILE-LEVEL (throws immediately – entire file is rejected) │
+ * │ • Malformed JSON │
+ * │ • Missing top-level required fields (schema) │
+ * │ • EV-215 SummaryInfo.LockboxCount mismatch │
+ * │ • EF-106 ASPECDate too old or bad format │
+ * │ • EF-108 File exceeds max lockbox count │
+ * ├────────────────────────────────────────────────────────────────────┤
+ * │ RECORD-LEVEL (bad record is MARKED as REJECTED, rest continues) │
+ * │ • Schema: wrong type, enum violation, pattern, required field │
+ * │ missing inside a Lockboxes[N] entry │
+ * │ • Bean: @NotBlank / @Pattern / @Size on individual LockboxEntry │
+ * │ • EV-202 AddressPostalCode ≠ LockboxPostalCode │
+ * │ • Duplicate (siteIdentifier, lockboxNumber) key in same file │
+ * └────────────────────────────────────────────────────────────────────┘
  *
  * All rejected records are returned in ParseResult.rejectedEntries and written
  * to ibox_lockbox_import_detail with operation = 'REJECTED'.
@@ -66,16 +66,15 @@ public class LockboxFileParser {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /** Matches paths like /Lockboxes/5 or /Lockboxes/5/PostalCode */
-    private static final Pattern LOCKBOX_INDEX_PATTERN =
-        Pattern.compile("\\/Lockboxes\\/(\\d+)");
+    private static final Pattern LOCKBOX_INDEX_PATTERN = Pattern.compile("\\/Lockboxes\\/(\\d+)");
 
-    private final ObjectMapper            objectMapper;
-    private final Validator               validator;
+    private final ObjectMapper objectMapper;
+    private final Validator validator;
     private final LockboxImportProperties props;
 
     public LockboxFileParser(ObjectMapper objectMapper,
-                            Validator validator,
-                            LockboxImportProperties props) {
+            Validator validator,
+            LockboxImportProperties props) {
         this.objectMapper = objectMapper;
         this.validator = validator;
         this.props = props;
@@ -92,7 +91,7 @@ public class LockboxFileParser {
     public List<LockboxRow> parse(String filePath) throws IOException {
         log.info("Parsing lockbox file: {}", new File(filePath).getName());
 
-        LockboxFileRoot root = parseJson(filePath);   // strict: schema fails file
+        LockboxFileRoot root = parseJson(filePath); // strict: schema fails file
         validateBeans(root);
         validateSummaryCount(root);
         validateAspecDate(root.getSummaryInfo().getAspecDate());
@@ -101,7 +100,7 @@ public class LockboxFileParser {
         warnClosedAndNonDigital(root.getLockboxes());
 
         log.info("Validation passed – {} lockbox entries, SpecificationIdentifier={}",
-            root.getLockboxes().size(), root.getSpecificationIdentifier());
+                root.getLockboxes().size(), root.getSpecificationIdentifier());
 
         return flatten(root);
     }
@@ -112,11 +111,11 @@ public class LockboxFileParser {
      * Called by LockboxImportService.
      */
     public ParseResult parseWithResult(String filePath) throws IOException {
-        File   file     = new File(filePath);
+        File file = new File(filePath);
         String fileName = file.getName();
 
-        List<RejectedEntry> rejected    = new ArrayList<>();
-        Set<String>         rejectedKeys = new LinkedHashSet<>();  // "site|lbNum"
+        List<RejectedEntry> rejected = new ArrayList<>();
+        Set<String> rejectedKeys = new LinkedHashSet<>(); // "site|lbNum"
 
         // ── 1. Parse to JsonNode (malformed JSON = fail file) ──────────
         JsonNode jsonNode = parseToNode(file, fileName);
@@ -128,9 +127,9 @@ public class LockboxFileParser {
         LockboxFileRoot root = deserializeNode(jsonNode, fileName);
 
         // ── 4. File-level checks ────────────────────────────────────────
-        validateSummaryCount(root);                                  // EV-215
-        validateAspecDate(root.getSummaryInfo().getAspecDate());     // EF-106
-        validateLockboxCount(root.getLockboxes().size());            // EF-108
+        validateSummaryCount(root); // EV-215
+        validateAspecDate(root.getSummaryInfo().getAspecDate()); // EF-106
+        validateLockboxCount(root.getLockboxes().size()); // EF-108
 
         // ── 5. Per-record bean validation ───────────────────────────────
         validateBeansPerRecord(root.getLockboxes(), rejected, rejectedKeys);
@@ -145,8 +144,8 @@ public class LockboxFileParser {
         warnClosedAndNonDigital(root.getLockboxes());
 
         log.info("Validation complete – {} in file, {} rejected, {} valid for import",
-            root.getLockboxes().size(), rejected.size(),
-            root.getLockboxes().size() - rejected.size());
+                root.getLockboxes().size(), rejected.size(),
+                root.getLockboxes().size() - rejected.size());
 
         // ── 9. Flatten valid rows + duplicate check ──────────────────────
         return flattenWithDuplicateCheck(root, rejected, rejectedKeys);
@@ -161,11 +160,11 @@ public class LockboxFileParser {
      * Any violation throws immediately.
      */
     private LockboxFileRoot parseJson(String filePath) throws IOException {
-        File   file     = new File(filePath);
+        File file = new File(filePath);
         String fileName = file.getName();
 
         JsonNode jsonNode = parseToNode(file, fileName);
-        validateAgainstSchema(jsonNode, fileName);          // file-level strict
+        validateAgainstSchema(jsonNode, fileName); // file-level strict
         return deserializeNode(jsonNode, fileName);
     }
 
@@ -178,9 +177,9 @@ public class LockboxFileParser {
             return objectMapper.readTree(fis);
         } catch (JsonParseException e) {
             String msg = "Malformed JSON in '" + fileName + "' – "
-                + e.getOriginalMessage()
-                + " (line " + e.getLocation().getLineNr()
-                + ", col "  + e.getLocation().getColumnNr() + ")";
+                    + e.getOriginalMessage()
+                    + " (line " + e.getLocation().getLineNr()
+                    + ", col " + e.getLocation().getColumnNr() + ")";
             log.error("EV-200 {}", msg);
             throw new LockboxValidationException(ErrorCode.EV_200, msg);
         }
@@ -199,7 +198,7 @@ public class LockboxFileParser {
             throw new LockboxValidationException(ErrorCode.EV_200, msg);
         } catch (IOException e) {
             throw new LockboxValidationException(ErrorCode.EV_200,
-                "Could not deserialise '" + fileName + "': " + e.getMessage());
+                    "Could not deserialise '" + fileName + "': " + e.getMessage());
         }
     }
 
@@ -218,15 +217,15 @@ public class LockboxFileParser {
             return;
         }
         List<String> messages = violations.stream()
-            .map(Error::getMessage)
-            .sorted()
-            .toList();
+                .map(Error::getMessage)
+                .sorted()
+                .toList();
         String detail = String.join("\n  ", messages);
         log.error("EV-200 Schema validation failed for '{}' – {} violation(s):\n  {}",
-            fileName, violations.size(), detail);
+                fileName, violations.size(), detail);
         throw new LockboxValidationException(ErrorCode.EV_200,
-            "JSON schema validation failed for '" + fileName + "' – "
-            + violations.size() + " violation(s):\n  " + detail);
+                "JSON schema validation failed for '" + fileName + "' – "
+                        + violations.size() + " violation(s):\n  " + detail);
     }
 
     // ====================================================================
@@ -236,15 +235,15 @@ public class LockboxFileParser {
     /**
      * Runs schema validation and splits the results:
      * <ul>
-     *   <li>Violations on the top-level document (missing required fields,
-     *       wrong SummaryInfo type, etc.) → throw EV-200 immediately.</li>
-     *   <li>Violations on individual {@code Lockboxes[N]} entries → the record
-     *       is added to {@code rejected} and its key added to {@code rejectedKeys}.</li>
+     * <li>Violations on the top-level document (missing required fields,
+     * wrong SummaryInfo type, etc.) → throw EV-200 immediately.</li>
+     * <li>Violations on individual {@code Lockboxes[N]} entries → the record
+     * is added to {@code rejected} and its key added to {@code rejectedKeys}.</li>
      * </ul>
      */
     private void validateSchemaAndCollect(JsonNode jsonNode, String fileName,
-                                          List<RejectedEntry> rejected,
-                                          Set<String> rejectedKeys) {
+            List<RejectedEntry> rejected,
+            Set<String> rejectedKeys) {
         List<Error> violations = runSchema(jsonNode, fileName);
         if (violations.isEmpty()) {
             log.debug("JSON schema validation passed for '{}'", fileName);
@@ -252,14 +251,14 @@ public class LockboxFileParser {
         }
 
         // Partition violations into file-level vs record-level
-        List<String>              fileLevelMsgs    = new ArrayList<>();
-        Map<Integer, List<String>> perRecordMsgs   = new TreeMap<>();
+        List<String> fileLevelMsgs = new ArrayList<>();
+        Map<Integer, List<String>> perRecordMsgs = new TreeMap<>();
 
         for (Error vm : violations) {
             int idx = extractLockboxIndex(vm);
             if (idx >= 0) {
                 perRecordMsgs.computeIfAbsent(idx, k -> new ArrayList<>())
-                             .add(vm.getMessage());
+                        .add(vm.getMessage());
             } else {
                 fileLevelMsgs.add(vm.getMessage());
             }
@@ -270,42 +269,43 @@ public class LockboxFileParser {
             String detail = String.join("\n  ", fileLevelMsgs.stream().sorted().toList());
             log.error("EV-200 File-level schema violation(s) in '{}': \n  {}", fileName, detail);
             throw new LockboxValidationException(ErrorCode.EV_200,
-                "JSON schema validation failed for '" + fileName + "' – "
-                + fileLevelMsgs.size() + " file-level violation(s):\n  " + detail);
+                    "JSON schema validation failed for '" + fileName + "' – "
+                            + fileLevelMsgs.size() + " file-level violation(s):\n  " + detail);
         }
 
         // Record-level violations → mark individual records as REJECTED
         JsonNode lockboxesNode = jsonNode.path("Lockboxes");
 
         for (Map.Entry<Integer, List<String>> entry : perRecordMsgs.entrySet()) {
-            int      idx    = entry.getKey();
+            int idx = entry.getKey();
             JsonNode lbNode = idx < lockboxesNode.size() ? lockboxesNode.get(idx) : null;
 
-            String lbNum  = lbNode != null ? lbNode.path("LockboxNumber").asText("") : "";
+            String lbNum = lbNode != null ? lbNode.path("LockboxNumber").asText("") : "";
             String siteId = lbNode != null ? lbNode.path("SiteIdentifier").asText("") : "";
-            String key    = siteId + "|" + lbNum;
+            String key = siteId + "|" + lbNum;
 
             if (rejectedKeys.add(key)) {
                 String reason = "Schema violation(s): "
-                    + String.join("; ", entry.getValue());
+                        + String.join("; ", entry.getValue());
                 log.warn("[EV-200] Marking record as REJECTED – LockboxNumber={} " +
-                         "SiteIdentifier={}: {}", lbNum, siteId, reason);
+                        "SiteIdentifier={}: {}", lbNum, siteId, reason);
                 rejected.add(RejectedEntry.builder()
-                    .lockboxNumber  (lbNum)
-                    .siteIdentifier (siteId)
-                    .postOfficeBox  (LockboxConstants.EMPTY_POST_OFFICE_BOX)
-                    .reason         (reason)
-                    .build());
+                        .lockboxNumber(lbNum)
+                        .siteIdentifier(siteId)
+                        .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
+                        .reason(reason)
+                        .build());
             }
         }
 
         log.info("Schema validation: {} record(s) marked as REJECTED out of {} in file",
-            perRecordMsgs.size(), lockboxesNode.size());
+                perRecordMsgs.size(), lockboxesNode.size());
     }
 
     /**
      * Loads DIGLBX_ASPEC.schema.json from the classpath and runs validation.
-     * Returns an empty set if the schema file cannot be found (graceful degradation).
+     * Returns an empty set if the schema file cannot be found (graceful
+     * degradation).
      */
     private List<Error> runSchema(JsonNode jsonNode, String fileName) {
         try (var schemaStream = getClass().getClassLoader()
@@ -317,7 +317,7 @@ public class LockboxFileParser {
             }
 
             Schema schema = SchemaRegistry.withDialect(Dialects.getDraft7())
-                .getSchema(schemaStream, InputFormat.JSON);
+                    .getSchema(schemaStream, InputFormat.JSON);
 
             return schema.validate(jsonNode);
 
@@ -326,11 +326,11 @@ public class LockboxFileParser {
         } catch (IOException e) {
             log.error("EV-200 Could not read DIGLBX_ASPEC.schema.json", e);
             throw new LockboxValidationException(ErrorCode.EV_200,
-                "Could not load JSON schema file – check classpath");
+                    "Could not load JSON schema file – check classpath");
         } catch (RuntimeException e) {
             log.error("EV-200 Could not apply DIGLBX_ASPEC.schema.json", e);
             throw new LockboxValidationException(ErrorCode.EV_200,
-                "Could not apply JSON schema validation");
+                    "Could not apply JSON schema validation");
         }
     }
 
@@ -338,7 +338,9 @@ public class LockboxFileParser {
      * Extracts the Lockboxes array index from a ValidationMessage path.
      * Returns -1 if the violation is not on a specific Lockboxes entry.
      *
-     * <p>Example paths handled:
+     * <p>
+     * Example paths handled:
+     * 
      * <pre>
      *   /Lockboxes/5/PostalCode  → 5
      *   /SummaryInfo/LockboxCount → -1 (file-level)
@@ -346,7 +348,8 @@ public class LockboxFileParser {
      */
     private int extractLockboxIndex(Error vm) {
         String path = vm.getInstanceLocation().toString();
-        if (path == null) return -1;
+        if (path == null)
+            return -1;
         Matcher m = LOCKBOX_INDEX_PATTERN.matcher(path);
         return m.find() ? Integer.parseInt(m.group(1)) : -1;
     }
@@ -360,59 +363,61 @@ public class LockboxFileParser {
         Set<ConstraintViolation<LockboxFileRoot>> violations = validator.validate(root);
         if (!violations.isEmpty()) {
             List<String> messages = violations.stream()
-                .map(v -> v.getPropertyPath() + " – " + v.getMessage())
-                .sorted()
-                .toList();
+                    .map(v -> v.getPropertyPath() + " – " + v.getMessage())
+                    .sorted()
+                    .toList();
             String detail = String.join("\n  ", messages);
             log.error("EV-200 Bean validation failed:\n  {}", detail);
             throw new LockboxValidationException(ErrorCode.EV_200,
-                "Field validation errors:\n  " + detail);
+                    "Field validation errors:\n  " + detail);
         }
     }
 
     /**
      * Per-record: validates each LockboxEntry individually.
-     * Records that fail are added to {@code rejected}; already-rejected keys are skipped.
+     * Records that fail are added to {@code rejected}; already-rejected keys are
+     * skipped.
      */
     private void validateBeansPerRecord(List<LockboxEntry> lockboxes,
-                                        List<RejectedEntry> rejected,
-                                        Set<String> rejectedKeys) {
+            List<RejectedEntry> rejected,
+            Set<String> rejectedKeys) {
         for (LockboxEntry entry : lockboxes) {
             String key = entry.getSiteIdentifier() + "|" + entry.getLockboxNumber();
-            if (rejectedKeys.contains(key)) continue;   // already rejected by schema
+            if (rejectedKeys.contains(key))
+                continue; // already rejected by schema
 
             Set<ConstraintViolation<LockboxEntry>> violations = validator.validate(entry);
             if (!violations.isEmpty()) {
                 List<String> messages = violations.stream()
-                    .map(v -> v.getPropertyPath() + " – " + v.getMessage())
-                    .sorted()
-                    .toList();
+                        .map(v -> v.getPropertyPath() + " – " + v.getMessage())
+                        .sorted()
+                        .toList();
                 String reason = "Field validation error(s): " + String.join("; ", messages);
                 log.warn("[EV-200] Marking record as REJECTED – LockboxNumber={} " +
-                         "SiteIdentifier={}: {}", entry.getLockboxNumber(),
-                         entry.getSiteIdentifier(), reason);
+                        "SiteIdentifier={}: {}", entry.getLockboxNumber(),
+                        entry.getSiteIdentifier(), reason);
                 rejected.add(RejectedEntry.builder()
-                    .lockboxNumber  (entry.getLockboxNumber())
-                    .siteIdentifier (entry.getSiteIdentifier())
-                    .postOfficeBox  (LockboxConstants.EMPTY_POST_OFFICE_BOX)
-                    .reason         (reason)
-                    .build());
+                        .lockboxNumber(entry.getLockboxNumber())
+                        .siteIdentifier(entry.getSiteIdentifier())
+                        .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
+                        .reason(reason)
+                        .build());
                 rejectedKeys.add(key);
             }
         }
     }
 
     // ====================================================================
-    // EV-215 / EF-106 / EF-108  (always file-level)
+    // EV-215 / EF-106 / EF-108 (always file-level)
     // ====================================================================
 
     private void validateSummaryCount(LockboxFileRoot root) {
         int declared = root.getSummaryInfo().getLockboxCount();
-        int actual   = root.getLockboxes().size();
+        int actual = root.getLockboxes().size();
         if (declared != actual) {
             throw new LockboxValidationException(ErrorCode.EV_215,
-                String.format("SummaryInfo.LockboxCount=%d does not match actual count=%d",
-                    declared, actual));
+                    String.format("SummaryInfo.LockboxCount=%d does not match actual count=%d",
+                            declared, actual));
         }
     }
 
@@ -423,23 +428,24 @@ public class LockboxFileParser {
     void validateAspecDate(String aspecDateStr) {
         if (aspecDateStr == null || aspecDateStr.isBlank()) {
             throw new LockboxValidationException(ErrorCode.EF_106,
-                "SummaryInfo.ASPECDate is missing");
+                    "SummaryInfo.ASPECDate is missing");
         }
         String datePart = (aspecDateStr.length() > 10 && aspecDateStr.charAt(10) == 'T')
-            ? aspecDateStr.substring(0, 10) : aspecDateStr;
+                ? aspecDateStr.substring(0, 10)
+                : aspecDateStr;
         LocalDate aspecDate;
         try {
             aspecDate = LocalDate.parse(datePart, DATE_FMT);
         } catch (DateTimeParseException e) {
             throw new LockboxValidationException(ErrorCode.EF_106,
-                "SummaryInfo.ASPECDate has invalid format: " + aspecDateStr
-                + " – expected yyyy-MM-dd or yyyy-MM-ddTHH:mm:ss");
+                    "SummaryInfo.ASPECDate has invalid format: " + aspecDateStr
+                            + " – expected yyyy-MM-dd or yyyy-MM-ddTHH:mm:ss");
         }
         LocalDate cutoff = LocalDate.now().minusDays(props.getMaxFileAgeDays());
         if (aspecDate.isBefore(cutoff)) {
             throw new LockboxValidationException(ErrorCode.EF_106,
-                String.format("ASPECDate %s is older than %d day(s). File is aged.",
-                    aspecDateStr, props.getMaxFileAgeDays()));
+                    String.format("ASPECDate %s is older than %d day(s). File is aged.",
+                            aspecDateStr, props.getMaxFileAgeDays()));
         }
     }
 
@@ -447,8 +453,8 @@ public class LockboxFileParser {
         int max = props.getMaxLockboxCount();
         if (count > max) {
             throw new LockboxValidationException(ErrorCode.EF_108,
-                String.format("File contains %d lockboxes which exceeds the maximum of %d",
-                    count, max));
+                    String.format("File contains %d lockboxes which exceeds the maximum of %d",
+                            count, max));
         }
     }
 
@@ -459,49 +465,54 @@ public class LockboxFileParser {
     /** Strict: throws on the first mismatch found. */
     void validateAddressPostalCodes(List<LockboxEntry> lockboxes) {
         for (LockboxEntry entry : lockboxes) {
-            if (entry.getAddressList() == null) continue;
+            if (entry.getAddressList() == null)
+                continue;
             String lockboxZip = normaliseZip(entry.getPostalCode());
             for (LockboxAddress addr : entry.getAddressList()) {
                 String addrZip = normaliseZip(addr.getAddressPostalCode());
                 if (lockboxZip != null && addrZip != null && !lockboxZip.equals(addrZip)) {
                     throw new LockboxValidationException(ErrorCode.EV_202,
-                        String.format(
-                            "LockboxNumber=%s: AddressPostalCode=%s does not match " +
-                            "LockboxPostalCode=%s",
-                            entry.getLockboxNumber(),
-                            addr.getAddressPostalCode(),
-                            entry.getPostalCode()));
+                            String.format(
+                                    "LockboxNumber=%s: AddressPostalCode=%s does not match " +
+                                            "LockboxPostalCode=%s",
+                                    entry.getLockboxNumber(),
+                                    addr.getAddressPostalCode(),
+                                    entry.getPostalCode()));
                 }
             }
         }
     }
 
-    /** Per-record: marks mismatching records as REJECTED instead of failing the file. */
+    /**
+     * Per-record: marks mismatching records as REJECTED instead of failing the
+     * file.
+     */
     private void validateAddressPostalCodesPerRecord(List<LockboxEntry> lockboxes,
-                                                     List<RejectedEntry> rejected,
-                                                     Set<String> rejectedKeys) {
+            List<RejectedEntry> rejected,
+            Set<String> rejectedKeys) {
         for (LockboxEntry entry : lockboxes) {
             String key = entry.getSiteIdentifier() + "|" + entry.getLockboxNumber();
-            if (rejectedKeys.contains(key) || entry.getAddressList() == null) continue;
+            if (rejectedKeys.contains(key) || entry.getAddressList() == null)
+                continue;
 
             String lockboxZip = normaliseZip(entry.getPostalCode());
             for (LockboxAddress addr : entry.getAddressList()) {
                 String addrZip = normaliseZip(addr.getAddressPostalCode());
                 if (lockboxZip != null && addrZip != null && !lockboxZip.equals(addrZip)) {
                     String reason = String.format(
-                        "[EV-202] AddressPostalCode=%s does not match LockboxPostalCode=%s",
-                        addr.getAddressPostalCode(), entry.getPostalCode());
+                            "[EV-202] AddressPostalCode=%s does not match LockboxPostalCode=%s",
+                            addr.getAddressPostalCode(), entry.getPostalCode());
                     log.warn("Marking record as REJECTED – LockboxNumber={} " +
-                             "SiteIdentifier={}: {}", entry.getLockboxNumber(),
-                             entry.getSiteIdentifier(), reason);
+                            "SiteIdentifier={}: {}", entry.getLockboxNumber(),
+                            entry.getSiteIdentifier(), reason);
                     rejected.add(RejectedEntry.builder()
-                        .lockboxNumber  (entry.getLockboxNumber())
-                        .siteIdentifier (entry.getSiteIdentifier())
-                        .postOfficeBox  (LockboxConstants.EMPTY_POST_OFFICE_BOX)
-                        .reason         (reason)
-                        .build());
+                            .lockboxNumber(entry.getLockboxNumber())
+                            .siteIdentifier(entry.getSiteIdentifier())
+                            .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
+                            .reason(reason)
+                            .build());
                     rejectedKeys.add(key);
-                    break;  // one rejection entry per lockbox
+                    break; // one rejection entry per lockbox
                 }
             }
         }
@@ -514,20 +525,26 @@ public class LockboxFileParser {
     /**
      * Performs conditional address validation based on DigitalIndicator.
      *
-     * <p>Rules:
+     * <p>
+     * Rules:
      * <ul>
-     *   <li><b>All Records:</b> If AddressPostalCode is provided (not empty), it must match the 5-9 digit format.</li>
-     *   <li><b>Digital Records (DigitalIndicator=true):</b> All address fields (Type, Company, Street1, City, State, ZIP)
-     *       are required and must match strict specification formats (Enum, Length, Pattern).</li>
-     *   <li><b>Non-Digital Records:</b> Missing or empty address fields are ignored (except for the Zip format check).</li>
+     * <li><b>All Records:</b> If AddressPostalCode is provided (not empty), it must
+     * match the 5-9 digit format.</li>
+     * <li><b>Digital Records (DigitalIndicator=true):</b> All address fields (Type,
+     * Company, Street1, City, State, ZIP)
+     * are required and must match strict specification formats (Enum, Length,
+     * Pattern).</li>
+     * <li><b>Non-Digital Records:</b> Missing or empty address fields are ignored
+     * (except for the Zip format check).</li>
      * </ul>
      */
     private void validateDigitalAddressPerRecord(List<LockboxEntry> lockboxes,
-                                                 List<RejectedEntry> rejected,
-                                                 Set<String> rejectedKeys) {
+            List<RejectedEntry> rejected,
+            Set<String> rejectedKeys) {
         for (LockboxEntry entry : lockboxes) {
             String key = entry.getSiteIdentifier() + "|" + entry.getLockboxNumber();
-            if (rejectedKeys.contains(key)) continue;
+            if (rejectedKeys.contains(key))
+                continue;
 
             boolean isDigital = Boolean.TRUE.equals(entry.getDigitalIndicator());
 
@@ -536,13 +553,15 @@ public class LockboxFileParser {
                 String entryPostalCode = entry.getPostalCode();
                 if (entryPostalCode != null && !entryPostalCode.isBlank() && entryPostalCode.length() < 5) {
                     rejectRecord(entry, rejected, rejectedKeys, key,
-                        "[EV-204] Digital record has PostalCode='" + entryPostalCode + "' which is fewer than 5 digits");
+                            "[EV-204] Digital record has PostalCode='" + entryPostalCode
+                                    + "' which is fewer than 5 digits");
                     continue;
                 }
             }
 
             // 2. Validate AddressList
-            if (entry.getAddressList() == null) continue;
+            if (entry.getAddressList() == null)
+                continue;
             for (LockboxAddress addr : entry.getAddressList()) {
                 List<String> errors = new ArrayList<>();
 
@@ -556,17 +575,24 @@ public class LockboxFileParser {
 
                 // Digital-only Strict Checks
                 if (isDigital) {
-                    if (addr.getAddressType() == null || !LockboxConstants.ALLOWED_ADDRESS_TYPES.contains(addr.getAddressType())) {
-                        errors.add("AddressType must be Mailing, Alternate, or Lockbox (found '" + addr.getAddressType() + "')");
+                    if (addr.getAddressType() == null
+                            || !LockboxConstants.ALLOWED_ADDRESS_TYPES.contains(addr.getAddressType())) {
+                        errors.add("AddressType must be Mailing, Alternate, or Lockbox (found '" + addr.getAddressType()
+                                + "')");
                     }
-                    if (isBlank(addr.getAddressCompanyName())) errors.add("AddressCompanyName is blank");
-                    if (isBlank(addr.getAddressStreet1()))     errors.add("AddressStreet1 is blank");
-                    if (isBlank(addr.getAddressCity()))        errors.add("AddressCity is blank");
+                    if (isBlank(addr.getAddressCompanyName()))
+                        errors.add("AddressCompanyName is blank");
+                    if (isBlank(addr.getAddressStreet1()))
+                        errors.add("AddressStreet1 is blank");
+                    if (isBlank(addr.getAddressCity()))
+                        errors.add("AddressCity is blank");
                     if (isBlank(addr.getAddressState()) || addr.getAddressState().length() != 2) {
                         errors.add("AddressState must be a 2-character code");
                     }
-                    if (isBlank(addr.getAddressPostalCode()))  errors.add("AddressPostalCode is blank");
-                    if (isBlank(addr.getAddressCountry()))     errors.add("AddressCountry is blank");
+                    if (isBlank(addr.getAddressPostalCode()))
+                        errors.add("AddressPostalCode is blank");
+                    if (isBlank(addr.getAddressCountry()))
+                        errors.add("AddressCountry is blank");
                 }
 
                 if (!errors.isEmpty()) {
@@ -583,15 +609,15 @@ public class LockboxFileParser {
     }
 
     private void rejectRecord(LockboxEntry entry, List<RejectedEntry> rejected,
-                              Set<String> rejectedKeys, String key, String reason) {
+            Set<String> rejectedKeys, String key, String reason) {
         log.warn("Marking record as REJECTED – LockboxNumber={} SiteIdentifier={}: {}",
-            entry.getLockboxNumber(), entry.getSiteIdentifier(), reason);
+                entry.getLockboxNumber(), entry.getSiteIdentifier(), reason);
         rejected.add(RejectedEntry.builder()
-            .lockboxNumber  (entry.getLockboxNumber())
-            .siteIdentifier (entry.getSiteIdentifier())
-            .postOfficeBox  (LockboxConstants.EMPTY_POST_OFFICE_BOX)
-            .reason         (reason)
-            .build());
+                .lockboxNumber(entry.getLockboxNumber())
+                .siteIdentifier(entry.getSiteIdentifier())
+                .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
+                .reason(reason)
+                .build());
         rejectedKeys.add(key);
     }
 
@@ -602,11 +628,11 @@ public class LockboxFileParser {
     private void warnClosedAndNonDigital(List<LockboxEntry> lockboxes) {
         for (LockboxEntry entry : lockboxes) {
             if ("Closed".equalsIgnoreCase(entry.getLockboxStatus())) {
-                log.warn("[ET-300] Closed Box – LockboxNumber={} SiteIdentifier={}",
+                // log.warn("[ET-300] Closed Box – LockboxNumber={} SiteIdentifier={}",
                     entry.getLockboxNumber(), entry.getSiteIdentifier());
             }
             if (Boolean.FALSE.equals(entry.getDigitalIndicator())) {
-                log.warn("[ET-301] Non-Digital Transaction – LockboxNumber={} SiteIdentifier={}",
+                // log.warn("[ET-301] Non-Digital Transaction – LockboxNumber={} SiteIdentifier={}",
                     entry.getLockboxNumber(), entry.getSiteIdentifier());
             }
         }
@@ -622,73 +648,75 @@ public class LockboxFileParser {
      * Merges pre-collected rejections with any new duplicate rejections.
      */
     ParseResult flattenWithDuplicateCheck(LockboxFileRoot root,
-                                          List<RejectedEntry> preRejected,
-                                          Set<String> rejectedKeys) {
-        List<LockboxRow>    validRows = new ArrayList<>();
-        List<RejectedEntry> rejected  = new ArrayList<>(preRejected);
-        Set<String>         seen      = new LinkedHashSet<>();
+            List<RejectedEntry> preRejected,
+            Set<String> rejectedKeys) {
+        List<LockboxRow> validRows = new ArrayList<>();
+        List<RejectedEntry> rejected = new ArrayList<>(preRejected);
+        Set<String> seen = new LinkedHashSet<>();
 
         for (LockboxEntry entry : root.getLockboxes()) {
             // Skip records already marked invalid
             String validationKey = entry.getSiteIdentifier() + "|" + entry.getLockboxNumber();
-            if (rejectedKeys.contains(validationKey)) continue;
+            if (rejectedKeys.contains(validationKey))
+                continue;
 
-            String familyGci  = null;
+            String familyGci = null;
             String primaryGci = null;
             if (entry.getGlobalClientIdentifier() != null) {
-                familyGci  = entry.getGlobalClientIdentifier().getFamilyGCI();
+                familyGci = entry.getGlobalClientIdentifier().getFamilyGCI();
                 primaryGci = entry.getGlobalClientIdentifier().getPrimaryGCI();
             }
 
             for (LockboxAddress addr : entry.getAddressList()) {
                 String postOfficeBox = LockboxConstants.EMPTY_POST_OFFICE_BOX;
                 String dupKey = entry.getSiteIdentifier() + "|"
-                              + entry.getLockboxNumber()   + "|"
-                              + postOfficeBox;
+                        + entry.getLockboxNumber() + "|"
+                        + postOfficeBox;
 
                 if (!seen.add(dupKey)) {
                     String reason = String.format(
-                        "Duplicate key (site_identifier=%s, lockboxnumber=%s, " +
-                        "postofficebox='%s') already exists in this file",
-                        entry.getSiteIdentifier(), entry.getLockboxNumber(), postOfficeBox);
+                            "Duplicate key (site_identifier=%s, lockboxnumber=%s, " +
+                                    "postofficebox='%s') already exists in this file",
+                            entry.getSiteIdentifier(), entry.getLockboxNumber(), postOfficeBox);
                     log.warn("Rejecting record – {}", reason);
                     rejected.add(RejectedEntry.builder()
-                        .lockboxNumber  (entry.getLockboxNumber())
-                        .siteIdentifier (entry.getSiteIdentifier())
-                        .postOfficeBox  (postOfficeBox)
-                        .reason         (reason)
-                        .build());
+                            .lockboxNumber(entry.getLockboxNumber())
+                            .siteIdentifier(entry.getSiteIdentifier())
+                            .postOfficeBox(postOfficeBox)
+                            .reason(reason)
+                            .build());
                     continue;
                 }
 
                 LockboxRow row = LockboxRow.builder()
-                    .lockboxNumber          (entry.getLockboxNumber())
-                    .siteIdentifier         (entry.getSiteIdentifier())
-                    .lockboxName            (entry.getLockboxName())
-                    .lockboxStatus          (entry.getLockboxStatus())
-                    .digitalIndicator       (entry.getDigitalIndicator())
-                    .postalCode             (entry.getPostalCode())
-                    .specificationIdentifier(root.getSpecificationIdentifier())
-                    .familyGci              (familyGci)
-                    .primaryGci             (primaryGci)
-                    .addressType            (addr.getAddressType())
-                    .addressCompanyName     (addr.getAddressCompanyName())
-                    .postOfficeBox          (postOfficeBox)
-                    .addressAttn            (addr.getAddressAttn())
-                    .addressStreet1         (addr.getAddressStreet1())
-                    .addressStreet2         (addr.getAddressStreet2())
-                    .addressCity            (addr.getAddressCity())
-                    .addressState           (addr.getAddressState())
-                    .addressPostalCode      (addr.getAddressPostalCode())
-                    .addressCountry         (addr.getAddressCountry() != null
-                                               ? addr.getAddressCountry() : LockboxConstants.DEFAULT_COUNTRY)
-                    .build();
+                        .lockboxNumber(entry.getLockboxNumber())
+                        .siteIdentifier(entry.getSiteIdentifier())
+                        .lockboxName(entry.getLockboxName())
+                        .lockboxStatus(entry.getLockboxStatus())
+                        .digitalIndicator(entry.getDigitalIndicator())
+                        .postalCode(entry.getPostalCode())
+                        .specificationIdentifier(root.getSpecificationIdentifier())
+                        .familyGci(familyGci)
+                        .primaryGci(primaryGci)
+                        .addressType(addr.getAddressType())
+                        .addressCompanyName(addr.getAddressCompanyName())
+                        .postOfficeBox(postOfficeBox)
+                        .addressAttn(addr.getAddressAttn())
+                        .addressStreet1(addr.getAddressStreet1())
+                        .addressStreet2(addr.getAddressStreet2())
+                        .addressCity(addr.getAddressCity())
+                        .addressState(addr.getAddressState())
+                        .addressPostalCode(addr.getAddressPostalCode())
+                        .addressCountry(addr.getAddressCountry() != null
+                                ? addr.getAddressCountry()
+                                : LockboxConstants.DEFAULT_COUNTRY)
+                        .build();
                 validRows.add(row.toBuilder().rowHash(HashUtil.computeRowHash(row)).build());
             }
         }
 
         log.info("Flatten complete – {} valid row(s), {} total rejected",
-            validRows.size(), rejected.size());
+                validRows.size(), rejected.size());
         return new ParseResult(validRows, rejected);
     }
 
@@ -699,36 +727,37 @@ public class LockboxFileParser {
         List<LockboxRow> rows = new ArrayList<>();
 
         for (LockboxEntry entry : root.getLockboxes()) {
-            String familyGci  = null;
+            String familyGci = null;
             String primaryGci = null;
             if (entry.getGlobalClientIdentifier() != null) {
-                familyGci  = entry.getGlobalClientIdentifier().getFamilyGCI();
+                familyGci = entry.getGlobalClientIdentifier().getFamilyGCI();
                 primaryGci = entry.getGlobalClientIdentifier().getPrimaryGCI();
             }
 
             for (LockboxAddress addr : entry.getAddressList()) {
                 LockboxRow row = LockboxRow.builder()
-                    .lockboxNumber          (entry.getLockboxNumber())
-                    .siteIdentifier         (entry.getSiteIdentifier())
-                    .lockboxName            (entry.getLockboxName())
-                    .lockboxStatus          (entry.getLockboxStatus())
-                    .digitalIndicator       (entry.getDigitalIndicator())
-                    .postalCode             (entry.getPostalCode())
-                    .specificationIdentifier(root.getSpecificationIdentifier())
-                    .familyGci              (familyGci)
-                    .primaryGci             (primaryGci)
-                    .addressType            (addr.getAddressType())
-                    .addressCompanyName     (addr.getAddressCompanyName())
-                    .postOfficeBox          (LockboxConstants.EMPTY_POST_OFFICE_BOX)
-                    .addressAttn            (addr.getAddressAttn())
-                    .addressStreet1         (addr.getAddressStreet1())
-                    .addressStreet2         (addr.getAddressStreet2())
-                    .addressCity            (addr.getAddressCity())
-                    .addressState           (addr.getAddressState())
-                    .addressPostalCode      (addr.getAddressPostalCode())
-                    .addressCountry         (addr.getAddressCountry() != null
-                                               ? addr.getAddressCountry() : LockboxConstants.DEFAULT_COUNTRY)
-                    .build();
+                        .lockboxNumber(entry.getLockboxNumber())
+                        .siteIdentifier(entry.getSiteIdentifier())
+                        .lockboxName(entry.getLockboxName())
+                        .lockboxStatus(entry.getLockboxStatus())
+                        .digitalIndicator(entry.getDigitalIndicator())
+                        .postalCode(entry.getPostalCode())
+                        .specificationIdentifier(root.getSpecificationIdentifier())
+                        .familyGci(familyGci)
+                        .primaryGci(primaryGci)
+                        .addressType(addr.getAddressType())
+                        .addressCompanyName(addr.getAddressCompanyName())
+                        .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
+                        .addressAttn(addr.getAddressAttn())
+                        .addressStreet1(addr.getAddressStreet1())
+                        .addressStreet2(addr.getAddressStreet2())
+                        .addressCity(addr.getAddressCity())
+                        .addressState(addr.getAddressState())
+                        .addressPostalCode(addr.getAddressPostalCode())
+                        .addressCountry(addr.getAddressCountry() != null
+                                ? addr.getAddressCountry()
+                                : LockboxConstants.DEFAULT_COUNTRY)
+                        .build();
                 rows.add(row.toBuilder().rowHash(HashUtil.computeRowHash(row)).build());
             }
         }
@@ -740,7 +769,8 @@ public class LockboxFileParser {
     // ====================================================================
 
     private String normaliseZip(String zip) {
-        if (zip == null || zip.isBlank()) return null;
+        if (zip == null || zip.isBlank())
+            return null;
         return zip.trim().substring(0, Math.min(5, zip.trim().length()));
     }
 }

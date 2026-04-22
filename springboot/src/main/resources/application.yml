@@ -5,10 +5,10 @@ spring:
     active: local
 
 # ================= Global Settings (All Profiles) =================
-logging:
-  level:
-    com.bofa.ibox.lockbox: INFO
-    org.springframework.jdbc: WARN
+#logging:
+#  level:
+#    com.bofa.ibox.lockbox: INFO
+#    org.springframework.jdbc: WARN
 
 # ================= LOCAL =================
 ---
