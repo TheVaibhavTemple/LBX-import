@@ -2,8 +2,6 @@ package com.bofa.ibox.lockbox.config;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
@@ -14,8 +12,6 @@ import org.springframework.validation.annotation.Validated;
  *   LOCKBOX_IN_DIR, LOCKBOX_PROCESSED_DIR, LOCKBOX_ERROR_DIR,
  *   LOCKBOX_DB_SCHEMA, LOCKBOX_SCHEDULER_ENABLED, LOCKBOX_SCHEDULER_INTERVAL_MS
  */
-@Getter
-@Setter
 @Validated
 @Component
 @ConfigurationProperties(prefix = "lockbox.import")
@@ -94,4 +90,84 @@ public class LockboxImportProperties {
         message = "db-schema must start with a letter and contain only letters, digits, or underscores"
     )
     private String dbSchema = "ibox_uat";
+
+    public String getInDir() {
+        return inDir;
+    }
+
+    public void setInDir(String inDir) {
+        this.inDir = inDir;
+    }
+
+    public String getProcessedDir() {
+        return processedDir;
+    }
+
+    public void setProcessedDir(String processedDir) {
+        this.processedDir = processedDir;
+    }
+
+    public String getErrorDir() {
+        return errorDir;
+    }
+
+    public void setErrorDir(String errorDir) {
+        this.errorDir = errorDir;
+    }
+
+    public boolean isSchedulerEnabled() {
+        return schedulerEnabled;
+    }
+
+    public void setSchedulerEnabled(boolean schedulerEnabled) {
+        this.schedulerEnabled = schedulerEnabled;
+    }
+
+    public String getModifiedBy() {
+        return modifiedBy;
+    }
+
+    public void setModifiedBy(String modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public int getMaxLockboxCount() {
+        return maxLockboxCount;
+    }
+
+    public void setMaxLockboxCount(int maxLockboxCount) {
+        this.maxLockboxCount = maxLockboxCount;
+    }
+
+    public int getMaxFileAgeDays() {
+        return maxFileAgeDays;
+    }
+
+    public void setMaxFileAgeDays(int maxFileAgeDays) {
+        this.maxFileAgeDays = maxFileAgeDays;
+    }
+
+    public int getStagingRetentionDays() {
+        return stagingRetentionDays;
+    }
+
+    public void setStagingRetentionDays(int stagingRetentionDays) {
+        this.stagingRetentionDays = stagingRetentionDays;
+    }
+
+    public String getDbSchema() {
+        return dbSchema;
+    }
+
+    public void setDbSchema(String dbSchema) {
+        this.dbSchema = dbSchema;
+    }
 }

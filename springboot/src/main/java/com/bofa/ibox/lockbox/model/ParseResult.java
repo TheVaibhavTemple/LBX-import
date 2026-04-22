@@ -1,7 +1,5 @@
 package com.bofa.ibox.lockbox.model;
 
-import lombok.Getter;
-
 import java.util.List;
 
 /**
@@ -17,7 +15,6 @@ import java.util.List;
  * </ul>
  * All rejected entries are written to ibox_lockbox_import_detail with operation='REJECTED'.
  */
-@Getter
 public class ParseResult {
 
     /** Rows that passed all record-level validation – ready for staging */
@@ -29,6 +26,14 @@ public class ParseResult {
     public ParseResult(List<LockboxRow> validRows, List<RejectedEntry> rejectedEntries) {
         this.validRows        = validRows;
         this.rejectedEntries  = rejectedEntries;
+    }
+
+    public List<LockboxRow> getValidRows() {
+        return validRows;
+    }
+
+    public List<RejectedEntry> getRejectedEntries() {
+        return rejectedEntries;
     }
 
     public int validCount()    { return validRows.size(); }

@@ -68,10 +68,6 @@ class LockboxFileParserDlbxTest {
         props = new LockboxImportProperties();
         props.setMaxFileAgeDays(2);
         props.setMaxLockboxCount(50000);
-        props.setFilePath("dummy");
-        props.setProviderId(1);
-        props.setLobId(1);
-        props.setApplicationId(1);
         parser = new LockboxFileParser(mapper, validator, props);
     }
 
@@ -735,7 +731,7 @@ class LockboxFileParserDlbxTest {
                 "LockboxName": "Test",
                 "LockboxStatus": "Active",
                 "DigitalIndicator": true,
-                """ + postalCodeField + """,
+                %s,
                 "AddressList": [{
                   "AddressType": "Lockbox",
                   "AddressCompanyName": "Bank of America",
@@ -744,13 +740,13 @@ class LockboxFileParserDlbxTest {
                   "AddressStreet2": "",
                   "AddressCity": "Chicago",
                   "AddressState": "IL",
-                  """ + addressPostalCodeField + """,
+                  %s,
                   "AddressCountry": "US"
                 }]
               }],
-              "SummaryInfo": { "ASPECDate": \"""" + today + "\", \"LockboxCount\": " + count + """ }
+              "SummaryInfo": { "ASPECDate": "%s", "LockboxCount": %d }
             }
-            """;
+            """.formatted(postalCodeField, addressPostalCodeField, today, count);
     }
 
     /**
@@ -773,19 +769,18 @@ class LockboxFileParserDlbxTest {
                 "PostalCode": "60601",
                 "AddressList": [{
                   "AddressType": "Lockbox",
-                  """ + companyField + """,
+                  %s,
                   "AddressAttn": "Test",
-                  """ + street1Field + """,
+                  %s,
                   "AddressStreet2": "",
-                  """ + cityField + """,
+                  %s,
                   "AddressState": "IL",
-                  """ + postalCodeField + """,
+                  %s,
                   "AddressCountry": "US"
                 }]
               }],
-              "SummaryInfo": { "ASPECDate": \"""" + today + """
-            ", "LockboxCount": 1 }
+              "SummaryInfo": { "ASPECDate": "%s", "LockboxCount": 1 }
             }
-            """;
+            """.formatted(companyField, street1Field, cityField, postalCodeField, today);
     }
 }

@@ -3,8 +3,8 @@ package com.bofa.ibox.lockbox.service;
 import com.bofa.ibox.lockbox.LockboxConstants;
 import com.bofa.ibox.lockbox.config.LockboxImportProperties;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -40,16 +40,19 @@ import java.io.IOException;
  *       without restarting the application.</li>
  * </ul>
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class LockboxFileWatcherService {
 
-    // File naming constants are centralised in LockboxConstants to avoid duplication
-    // with LockboxImportService which also needs them.
+    private static final Logger log = LoggerFactory.getLogger(LockboxFileWatcherService.class);
 
     private final LockboxImportService    importService;
     private final LockboxImportProperties props;
+
+    public LockboxFileWatcherService(LockboxImportService importService,
+                                     LockboxImportProperties props) {
+        this.importService = importService;
+        this.props = props;
+    }
 
     // ----------------------------------------------------------------
     // Startup: ensure working directories exist

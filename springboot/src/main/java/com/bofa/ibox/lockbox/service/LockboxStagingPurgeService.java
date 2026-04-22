@@ -2,8 +2,8 @@ package com.bofa.ibox.lockbox.service;
 
 import com.bofa.ibox.lockbox.config.LockboxImportProperties;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +25,18 @@ import java.time.temporal.ChronoUnit;
  *   1. Call {@link #purgeExpiredRows()} directly from a scheduled job or CLI runner.
  *   2. Wire into a Spring @Scheduled method in a separate @Configuration class.
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class LockboxStagingPurgeService {
+
+    private static final Logger log = LoggerFactory.getLogger(LockboxStagingPurgeService.class);
 
     private final JdbcTemplate            jdbcTemplate;
     private final LockboxImportProperties props;
+
+    public LockboxStagingPurgeService(JdbcTemplate jdbcTemplate, LockboxImportProperties props) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.props = props;
+    }
 
     private String purgeSql;
 

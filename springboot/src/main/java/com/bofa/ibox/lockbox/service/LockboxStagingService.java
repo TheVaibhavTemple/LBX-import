@@ -5,8 +5,8 @@ import com.bofa.ibox.lockbox.config.LockboxImportProperties;
 import com.bofa.ibox.lockbox.model.LockboxRow;
 import com.bofa.ibox.lockbox.model.RejectedEntry;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -24,13 +24,18 @@ import java.util.List;
  *  - Log rejected (duplicate) entries into import_detail
  *  - Call stored procedure import_lockbox_data()
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class LockboxStagingService {
+
+    private static final Logger log = LoggerFactory.getLogger(LockboxStagingService.class);
 
     private final JdbcTemplate            jdbcTemplate;
     private final LockboxImportProperties props;
+
+    public LockboxStagingService(JdbcTemplate jdbcTemplate, LockboxImportProperties props) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.props = props;
+    }
 
     // SQL strings are built at startup so the schema name is configurable
     // (lockbox.import.db-schema in application.yml, default ibox_uat)

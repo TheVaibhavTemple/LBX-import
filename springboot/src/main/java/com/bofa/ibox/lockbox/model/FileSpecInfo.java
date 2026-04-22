@@ -1,20 +1,5 @@
 package com.bofa.ibox.lockbox.model;
 
-import lombok.Builder;
-import lombok.Getter;
-
-/**
- * Resolved file-specification identifiers looked up from the database
- * before an import begins.
- *
- * Join chain used to populate these fields:
- *   ibox_file_spec  (matched by file_name_pattern)
- *     → ibox_provider    (via file_spec.provider_id)
- *       → ibox_client    (via provider.client_id)
- *         → ibox_application (via client.lob_id = application.lob_id)
- */
-@Getter
-@Builder
 public class FileSpecInfo {
 
     /** PK of the matched ibox_file_spec row */
@@ -31,4 +16,59 @@ public class FileSpecInfo {
 
     /** lob_id from ibox_application */
     private final int lobId;
+
+    private FileSpecInfo(Builder builder) {
+        this.fileSpecId = builder.fileSpecId;
+        this.providerId = builder.providerId;
+        this.clientId = builder.clientId;
+        this.applicationId = builder.applicationId;
+        this.lobId = builder.lobId;
+    }
+
+    public long getFileSpecId() { return fileSpecId; }
+    public int getProviderId() { return providerId; }
+    public int getClientId() { return clientId; }
+    public int getApplicationId() { return applicationId; }
+    public int getLobId() { return lobId; }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private long fileSpecId;
+        private int providerId;
+        private int clientId;
+        private int applicationId;
+        private int lobId;
+
+        public Builder fileSpecId(long fileSpecId) {
+            this.fileSpecId = fileSpecId;
+            return this;
+        }
+
+        public Builder providerId(int providerId) {
+            this.providerId = providerId;
+            return this;
+        }
+
+        public Builder clientId(int clientId) {
+            this.clientId = clientId;
+            return this;
+        }
+
+        public Builder applicationId(int applicationId) {
+            this.applicationId = applicationId;
+            return this;
+        }
+
+        public Builder lobId(int lobId) {
+            this.lobId = lobId;
+            return this;
+        }
+
+        public FileSpecInfo build() {
+            return new FileSpecInfo(this);
+        }
+    }
 }

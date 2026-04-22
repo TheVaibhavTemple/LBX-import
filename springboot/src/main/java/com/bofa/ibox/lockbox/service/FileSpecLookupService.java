@@ -5,8 +5,8 @@ import com.bofa.ibox.lockbox.exception.LockboxValidationException;
 import com.bofa.ibox.lockbox.model.ErrorCode;
 import com.bofa.ibox.lockbox.model.FileSpecInfo;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +33,18 @@ import java.util.List;
  * Throws {@code EF-102} if no active file spec matches – the import is aborted
  * before any DB write occurs.
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class FileSpecLookupService {
+
+    private static final Logger log = LoggerFactory.getLogger(FileSpecLookupService.class);
 
     private final JdbcTemplate            jdbcTemplate;
     private final LockboxImportProperties props;
+
+    public FileSpecLookupService(JdbcTemplate jdbcTemplate, LockboxImportProperties props) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.props = props;
+    }
 
     private String lookupSql;
 

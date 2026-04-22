@@ -7,8 +7,8 @@ import com.bofa.ibox.lockbox.model.ErrorCode;
 import com.bofa.ibox.lockbox.model.FileSpecInfo;
 import com.bofa.ibox.lockbox.model.ParseResult;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,10 +37,10 @@ import java.util.regex.Matcher;
  *       c. Log rejected records into import_detail
  *       d. Call stored procedure (upsert + audit)
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class LockboxImportService {
+
+    private static final Logger log = LoggerFactory.getLogger(LockboxImportService.class);
 
     // File naming and status constants are centralised in LockboxConstants.
 
@@ -49,6 +49,18 @@ public class LockboxImportService {
     private final FileSpecLookupService   fileSpecLookupService;
     private final LockboxImportProperties props;
     private final JdbcTemplate            jdbcTemplate;
+
+    public LockboxImportService(LockboxFileParser fileParser,
+                                LockboxStagingService stagingService,
+                                FileSpecLookupService fileSpecLookupService,
+                                LockboxImportProperties props,
+                                JdbcTemplate jdbcTemplate) {
+        this.fileParser = fileParser;
+        this.stagingService = stagingService;
+        this.fileSpecLookupService = fileSpecLookupService;
+        this.props = props;
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     private String duplicateCheckSql;
 

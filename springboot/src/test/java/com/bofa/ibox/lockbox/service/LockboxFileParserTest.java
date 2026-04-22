@@ -36,10 +36,6 @@ class LockboxFileParserTest {
         props = new LockboxImportProperties();
         props.setMaxFileAgeDays(2);
         props.setMaxLockboxCount(50000);
-        props.setFilePath("dummy");
-        props.setProviderId(1);
-        props.setLobId(1);
-        props.setApplicationId(1);
         parser = new LockboxFileParser(mapper, validator, props);
     }
 

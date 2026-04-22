@@ -17,8 +17,8 @@ import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.dialect.Dialects;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -58,10 +58,10 @@ import java.util.regex.Pattern;
  * All rejected records are returned in ParseResult.rejectedEntries and written
  * to ibox_lockbox_import_detail with operation = 'REJECTED'.
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class LockboxFileParser {
+
+    private static final Logger log = LoggerFactory.getLogger(LockboxFileParser.class);
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -72,6 +72,14 @@ public class LockboxFileParser {
     private final ObjectMapper            objectMapper;
     private final Validator               validator;
     private final LockboxImportProperties props;
+
+    public LockboxFileParser(ObjectMapper objectMapper,
+                            Validator validator,
+                            LockboxImportProperties props) {
+        this.objectMapper = objectMapper;
+        this.validator = validator;
+        this.props = props;
+    }
 
     // ====================================================================
     // Public API

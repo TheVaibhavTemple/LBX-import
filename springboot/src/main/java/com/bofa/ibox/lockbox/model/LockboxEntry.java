@@ -6,13 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
-@Getter
-@Setter
 public class LockboxEntry {
 
     @Valid
@@ -55,4 +51,68 @@ public class LockboxEntry {
     @NotEmpty(message = "AddressList must have at least one address")
     @JsonProperty("AddressList")
     private List<LockboxAddress> addressList;
+
+    public LockboxGCI getGlobalClientIdentifier() {
+        return globalClientIdentifier;
+    }
+
+    public void setGlobalClientIdentifier(LockboxGCI globalClientIdentifier) {
+        this.globalClientIdentifier = globalClientIdentifier;
+    }
+
+    public String getSiteIdentifier() {
+        return siteIdentifier;
+    }
+
+    public void setSiteIdentifier(String siteIdentifier) {
+        this.siteIdentifier = siteIdentifier;
+    }
+
+    public String getLockboxNumber() {
+        return lockboxNumber;
+    }
+
+    public void setLockboxNumber(String lockboxNumber) {
+        this.lockboxNumber = lockboxNumber;
+    }
+
+    public String getLockboxName() {
+        return lockboxName;
+    }
+
+    public void setLockboxName(String lockboxName) {
+        this.lockboxName = lockboxName;
+    }
+
+    public String getLockboxStatus() {
+        return lockboxStatus;
+    }
+
+    public void setLockboxStatus(String lockboxStatus) {
+        this.lockboxStatus = lockboxStatus;
+    }
+
+    public Boolean getDigitalIndicator() {
+        return digitalIndicator;
+    }
+
+    public void setDigitalIndicator(Boolean digitalIndicator) {
+        this.digitalIndicator = digitalIndicator;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public List<LockboxAddress> getAddressList() {
+        return addressList;
+    }
+
+    public void setAddressList(List<LockboxAddress> addressList) {
+        this.addressList = addressList;
+    }
 }
