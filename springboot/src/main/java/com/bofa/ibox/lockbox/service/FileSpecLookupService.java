@@ -14,9 +14,11 @@ import java.util.List;
 
 /**
  * Resolves the provider, client, and application identifiers for an incoming
- * file by matching its name against patterns registered in {@code ibox_file_spec}.
+ * file by matching its name against patterns registered in
+ * {@code ibox_file_spec}.
  *
  * <h3>Join chain</h3>
+ * 
  * <pre>
  *  ibox_file_spec   (file_name_pattern ~* filename)
  *    └─► ibox_provider   (via file_spec.provider_id)
@@ -26,7 +28,7 @@ import java.util.List;
  *
  * <h3>Pattern matching</h3>
  * The {@code file_name_pattern} column is treated as a PostgreSQL POSIX
- * case-insensitive regex ({@code ~*}).  Example stored value:
+ * case-insensitive regex ({@code ~*}). Example stored value:
  * {@code ^DIGLBX_Aspec_\d{8}T\d{6}\.json$}
  *
  * <h3>Error</h3>
@@ -38,7 +40,7 @@ public class FileSpecLookupService {
 
     private static final Logger log = LoggerFactory.getLogger(FileSpecLookupService.class);
 
-    private final JdbcTemplate            jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
     private final LockboxImportProperties props;
 
     public FileSpecLookupService(JdbcTemplate jdbcTemplate, LockboxImportProperties props) {
@@ -55,29 +57,26 @@ public class FileSpecLookupService {
          * Match the filename against file_name_pattern using PostgreSQL's
          * case-insensitive POSIX regex operator (~*).
          *
-         * Join path to get application_id + lob_id:
-         *   file_spec → provider (is_active)
-         *             → client
-         *             → application (lob_id = client.lob_id, is_active)
-         *
-         * NOTE: this query assumes ibox_client has a lob_id column.
-         *       Adjust the ON clause if your schema uses a different join key.
+         * Join path:
+         * file_spec -> lines_of_business (via provider_id, is_active)
+         * -> application (via lob_id, is_active)
          */
-        lookupSql =
-            "SELECT " +
-            "    fs.file_spec_id, " +
-            "    fs.provider_id, " +
-            "    p.client_id, " +
-            "    a.application_id, " +
-            "    a.lob_id " +
-            "FROM "      + s + ".ibox_file_spec   fs " +
-            "JOIN "      + s + ".ibox_provider    p  ON p.provider_id = fs.provider_id  AND p.is_active = true " +
-            "JOIN "      + s + ".ibox_client      c  ON c.client_id   = p.client_id " +
-            "JOIN "      + s + ".ibox_application a  ON a.lob_id      = c.lob_id        AND a.is_active = true " +
-            "WHERE fs.is_active = true " +
-            "  AND ? ~* fs.file_name_pattern " +   // filename must match the stored regex
-            "ORDER BY fs.file_spec_id " +           // deterministic if multiple patterns match
-            "LIMIT 1";
+        lookupSql = "SELECT " +
+                "    fs.file_spec_id, " +
+                "    fs.provider_id, " +
+                "    fs.client_id, " +
+                "    ilob.lob_id, " +
+                "    a.application_id " +
+                "FROM " + s + ".ibox_file_spec fs " +
+                "JOIN " + s
+                + ".ibox_lines_of_business ilob ON fs.provider_id = ilob.provider_id AND ilob.is_active = true " +
+                "JOIN " + s + ".ibox_application a       ON a.lob_id      = ilob.lob_id        AND a.is_active = true "
+                +
+                "WHERE fs.is_active = true " +
+                "  AND 'DIGLBX_Aspec_YYYYMMDDTHHMMSS.json' ~* fs.file_name_pattern " + // filename must match the stored
+                                                                                       // regex
+                "ORDER BY fs.file_spec_id " + // deterministic if multiple patterns match
+                "LIMIT 1";
     }
 
     /**
@@ -90,28 +89,27 @@ public class FileSpecLookupService {
      */
     public FileSpecInfo resolve(String fileName) {
         List<FileSpecInfo> results = jdbcTemplate.query(
-            lookupSql,
-            (rs, rowNum) -> FileSpecInfo.builder()
-                .fileSpecId   (rs.getLong("file_spec_id"))
-                .providerId   (rs.getInt ("provider_id"))
-                .clientId     (rs.getInt ("client_id"))
-                .applicationId(rs.getInt ("application_id"))
-                .lobId        (rs.getInt ("lob_id"))
-                .build(),
-            fileName);
+                lookupSql,
+                (rs, rowNum) -> FileSpecInfo.builder()
+                        .fileSpecId(rs.getLong("file_spec_id"))
+                        .providerId(rs.getInt("provider_id"))
+                        .clientId(rs.getInt("client_id"))
+                        .applicationId(rs.getInt("application_id"))
+                        .lobId(rs.getInt("lob_id"))
+                        .build());
 
         if (results.isEmpty()) {
             log.error("[EF-102] No active file spec found matching filename: {}", fileName);
             throw new LockboxValidationException(ErrorCode.EF_102,
-                "No active file specification found matching filename '" + fileName + "'. " +
-                "Ensure the provider has registered a matching file_name_pattern in ibox_file_spec.");
+                    "No active file specification found matching filename '" + fileName + "'. " +
+                            "Ensure the provider has registered a matching file_name_pattern in ibox_file_spec.");
         }
 
         FileSpecInfo info = results.get(0);
         log.info("File spec resolved – file_spec_id={}, provider_id={}, " +
-                 "client_id={}, application_id={}, lob_id={}",
-            info.getFileSpecId(), info.getProviderId(), info.getClientId(),
-            info.getApplicationId(), info.getLobId());
+                "client_id={}, application_id={}, lob_id={}",
+                info.getFileSpecId(), info.getProviderId(), info.getClientId(),
+                info.getApplicationId(), info.getLobId());
 
         return info;
     }

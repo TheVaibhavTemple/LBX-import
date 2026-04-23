@@ -108,10 +108,7 @@ public class LockboxImportService {
 
         // ── 4. EF-102: resolve provider + application from ibox_file_spec
         //       Done BEFORE parsing so we fail fast if the provider is unknown
-//        FileSpecInfo spec = fileSpecLookupService.resolve(fileName);
-
-        //vaibhav todo
-        FileSpecInfo spec = FileSpecInfo.builder().applicationId(7).clientId(2).fileSpecId(12345).lobId(3).providerId(4).build();
+        FileSpecInfo spec = fileSpecLookupService.resolve(fileName);
         
         // ── 5. Parse + validate BEFORE opening DB transaction ──────────
         //       (keeps file I/O outside the DB transaction boundary)
