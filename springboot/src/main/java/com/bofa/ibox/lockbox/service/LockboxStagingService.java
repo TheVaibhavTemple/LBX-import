@@ -48,8 +48,8 @@ public class LockboxStagingService {
     void initSql() {
         String s = props.getDbSchema();
         createLogSql      = "INSERT INTO " + s + "." + LockboxConstants.TABLE_IMPORT_LOG
-                          + " (file_name, aspec_date, status)"
-                          + " VALUES (?, ?, '" + LockboxConstants.STATUS_IN_PROGRESS + "')";
+                          + " (file_name, aspec_date, status, provider_id, client_id)"
+                          + " VALUES (?, ?, '" + LockboxConstants.STATUS_IN_PROGRESS + "', ?, ?)";
         insertStagingSql  = "INSERT INTO " + s + "." + LockboxConstants.TABLE_STAGING
                           + " (import_log_id, staged_at, lockboxnumber, site_identifier, lockboxname, lockboxstatus,"
                           + "  digitalindicator, postalcode, specificationidentifier, familygci, primarygci,"
@@ -68,7 +68,7 @@ public class LockboxStagingService {
     // ----------------------------------------------------------------
     // Step 1: Create import log entry – returns import_log_id
     // ----------------------------------------------------------------
-    public long createImportLog(String fileName, LocalDate aspecDate) {
+    public long createImportLog(String fileName, LocalDate aspecDate, int providerId, int clientId) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             // Pass the column name explicitly so PostgreSQL returns only that one key.
@@ -78,6 +78,8 @@ public class LockboxStagingService {
                 new String[]{"import_log_id"});
             ps.setString(1, fileName);
             ps.setObject(2, aspecDate != null ? Date.valueOf(aspecDate) : null);
+            ps.setInt(3, providerId);
+            ps.setInt(4, clientId);
             return ps;
         }, keyHolder);
 

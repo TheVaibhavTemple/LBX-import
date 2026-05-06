@@ -69,7 +69,7 @@ class LockboxImportServiceTest {
 
             when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any()))
                 .thenReturn(0);                                     // not a duplicate
-            when(stagingService.createImportLog(anyString(), any()))
+            when(stagingService.createImportLog(anyString(), any(), anyInt(), anyInt()))
                 .thenReturn(7L);                                    // importLogId = 7
             when(fileParser.parseWithResult(anyString()))
                 .thenReturn(mockResult);
@@ -79,7 +79,8 @@ class LockboxImportServiceTest {
             // Original filename (without .processing) must be passed to all DB calls
             verify(stagingService).createImportLog(
                 eq("DIGLBX_Aspec_20260416T120000.json"),
-                eq(LocalDate.of(2026, 4, 16)));
+                eq(LocalDate.of(2026, 4, 16)),
+                eq(1), eq(10));
 
             verify(stagingService).loadStaging(eq(7L), eq(List.of(mockRow)));
             verify(stagingService).logRejected(eq(7L), eq(List.of()));
@@ -102,7 +103,7 @@ class LockboxImportServiceTest {
 
             when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any()))
                 .thenReturn(0);
-            when(stagingService.createImportLog(anyString(), any())).thenReturn(8L);
+            when(stagingService.createImportLog(anyString(), any(), anyInt(), anyInt())).thenReturn(8L);
             when(fileParser.parseWithResult(anyString())).thenReturn(emptyResult);
 
             importService.processFile(validProcessingFile);
@@ -123,7 +124,7 @@ class LockboxImportServiceTest {
 
             when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any()))
                 .thenReturn(0);
-            when(stagingService.createImportLog(anyString(), any())).thenReturn(9L);
+            when(stagingService.createImportLog(anyString(), any(), anyInt(), anyInt())).thenReturn(9L);
             when(fileParser.parseWithResult(anyString())).thenReturn(mixed);
 
             importService.processFile(validProcessingFile);
@@ -143,14 +144,14 @@ class LockboxImportServiceTest {
 
             when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any()))
                 .thenReturn(0);
-            when(stagingService.createImportLog(anyString(), any())).thenReturn(10L);
+            when(stagingService.createImportLog(anyString(), any(), anyInt(), anyInt())).thenReturn(10L);
             when(fileParser.parseWithResult(anyString()))
                 .thenReturn(new ParseResult(List.of(), List.of()));
 
             importService.processFile(plain.toFile());
 
             verify(stagingService).createImportLog(
-                eq("DIGLBX_Aspec_20260416T120000.json"), any());
+                eq("DIGLBX_Aspec_20260416T120000.json"), any(), eq(1), eq(10));
         }
     }
 
