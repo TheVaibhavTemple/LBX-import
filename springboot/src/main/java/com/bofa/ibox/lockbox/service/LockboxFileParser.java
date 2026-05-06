@@ -284,6 +284,8 @@ public class LockboxFileParser {
             String siteId = lbNode != null ? lbNode.path("SiteIdentifier").asText("") : "";
             String key = siteId + "|" + lbNum;
 
+            String postalCode = lbNode != null ? lbNode.path("PostalCode").asText(LockboxConstants.EMPTY_POST_OFFICE_BOX) : LockboxConstants.EMPTY_POST_OFFICE_BOX;
+
             if (rejectedKeys.add(key)) {
                 String reason = "Schema violation(s): "
                         + String.join("; ", entry.getValue());
@@ -292,7 +294,7 @@ public class LockboxFileParser {
                 rejected.add(RejectedEntry.builder()
                         .lockboxNumber(lbNum)
                         .siteIdentifier(siteId)
-                        .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
+                        .postOfficeBox(postalCode)
                         .reason(reason)
                         .build());
             }
@@ -399,7 +401,7 @@ public class LockboxFileParser {
                 rejected.add(RejectedEntry.builder()
                         .lockboxNumber(entry.getLockboxNumber())
                         .siteIdentifier(entry.getSiteIdentifier())
-                        .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
+                        .postOfficeBox(entry.getPostalCode() != null ? entry.getPostalCode() : LockboxConstants.EMPTY_POST_OFFICE_BOX)
                         .reason(reason)
                         .build());
                 rejectedKeys.add(key);
@@ -601,7 +603,7 @@ public class LockboxFileParser {
         rejected.add(RejectedEntry.builder()
                 .lockboxNumber(entry.getLockboxNumber())
                 .siteIdentifier(entry.getSiteIdentifier())
-                .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
+                .postOfficeBox(entry.getPostalCode() != null ? entry.getPostalCode() : LockboxConstants.EMPTY_POST_OFFICE_BOX)
                 .reason(reason)
                 .build());
         rejectedKeys.add(key);
@@ -654,7 +656,7 @@ public class LockboxFileParser {
             }
 
             for (LockboxAddress addr : entry.getAddressList()) {
-                String postOfficeBox = LockboxConstants.EMPTY_POST_OFFICE_BOX;
+                String postOfficeBox = entry.getPostalCode() != null ? entry.getPostalCode() : LockboxConstants.EMPTY_POST_OFFICE_BOX;
                 String dupKey = entry.getSiteIdentifier() + "|"
                         + entry.getLockboxNumber() + "|"
                         + postOfficeBox;
@@ -733,7 +735,7 @@ public class LockboxFileParser {
                         .primaryGci(primaryGci)
                         .addressType(addr.getAddressType())
                         .addressCompanyName(addr.getAddressCompanyName())
-                        .postOfficeBox(LockboxConstants.EMPTY_POST_OFFICE_BOX)
+                        .postOfficeBox(entry.getPostalCode() != null ? entry.getPostalCode() : LockboxConstants.EMPTY_POST_OFFICE_BOX)
                         .addressAttn(addr.getAddressAttn())
                         .addressStreet1(addr.getAddressStreet1())
                         .addressStreet2(addr.getAddressStreet2())
