@@ -110,7 +110,7 @@ public class LockboxFileParser {
      * violations are collected and returned as REJECTED entries.
      * Called by LockboxImportService.
      */
-    public ParseResult parseWithResult(String filePath) throws IOException {
+    public ParseResult parseWithResult(String filePath, String specificationIdentifier) throws IOException {
         File file = new File(filePath);
         String fileName = file.getName();
 
@@ -148,7 +148,7 @@ public class LockboxFileParser {
                 root.getLockboxes().size() - rejected.size());
 
         // ── 9. Flatten valid rows + duplicate check ──────────────────────
-        return flattenWithDuplicateCheck(root, rejected, rejectedKeys);
+        return flattenWithDuplicateCheck(root, rejected, rejectedKeys, specificationIdentifier);
     }
 
     // ====================================================================
@@ -637,7 +637,8 @@ public class LockboxFileParser {
      */
     ParseResult flattenWithDuplicateCheck(LockboxFileRoot root,
             List<RejectedEntry> preRejected,
-            Set<String> rejectedKeys) {
+            Set<String> rejectedKeys,
+            String specificationIdentifier) {
         List<LockboxRow> validRows = new ArrayList<>();
         List<RejectedEntry> rejected = new ArrayList<>(preRejected);
         Set<String> seen = new LinkedHashSet<>();
@@ -683,7 +684,7 @@ public class LockboxFileParser {
                         .lockboxStatus(entry.getLockboxStatus())
                         .digitalIndicator(entry.getDigitalIndicator())
                         .postalCode(entry.getPostalCode())
-                        .specificationIdentifier(root.getSpecificationIdentifier())
+                        .specificationIdentifier(specificationIdentifier)
                         .familyGci(familyGci)
                         .primaryGci(primaryGci)
                         .addressType(addr.getAddressType())

@@ -114,7 +114,7 @@ public class LockboxImportService {
         //       (keeps file I/O outside the DB transaction boundary)
         ParseResult result;
         try {
-            result = fileParser.parseWithResult(file.getAbsolutePath());
+            result = fileParser.parseWithResult(file.getAbsolutePath(), spec.getSpecificationIdentifier());
         } catch (IOException e) {
             log.error("Failed to read lockbox file: {}", fileName, e);
             throw new RuntimeException("Failed to read lockbox file", e);

@@ -66,12 +66,13 @@ public class FileSpecLookupService {
                 "    fs.provider_id, " +
                 "    fs.client_id, " +
                 "    ilob.lob_id, " +
-                "    a.application_id " +
+                "    a.application_id, " +
+                "    ispec.specificationidentifier " +
                 "FROM " + s + ".ibox_file_spec fs " +
                 "JOIN " + s
                 + ".ibox_lines_of_business ilob ON fs.provider_id = ilob.provider_id AND ilob.is_active = true " +
-                "JOIN " + s + ".ibox_application a       ON a.lob_id      = ilob.lob_id        AND a.is_active = true "
-                +
+                "JOIN " + s + ".ibox_application a       ON a.lob_id      = ilob.lob_id        AND a.is_active = true " +
+                "LEFT JOIN " + s + ".ibox_specification ispec ON ispec.client_id = fs.client_id AND ispec.provider_id = fs.provider_id " +
                 "WHERE fs.is_active = true " +
                 "  AND 'DIGLBX_Aspec_YYYYMMDDTHHMMSS.json' ~* fs.file_name_pattern " + // filename must match the stored
                                                                                        // regex
@@ -96,6 +97,7 @@ public class FileSpecLookupService {
                         .clientId(rs.getInt("client_id"))
                         .applicationId(rs.getInt("application_id"))
                         .lobId(rs.getInt("lob_id"))
+                        .specificationIdentifier(rs.getString("specificationidentifier"))
                         .build());
 
         if (results.isEmpty()) {

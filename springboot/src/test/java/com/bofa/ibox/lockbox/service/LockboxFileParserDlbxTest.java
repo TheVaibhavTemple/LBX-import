@@ -2,7 +2,6 @@ package com.bofa.ibox.lockbox.service;
 
 import com.bofa.ibox.lockbox.config.LockboxImportProperties;
 import com.bofa.ibox.lockbox.exception.LockboxValidationException;
-import com.bofa.ibox.lockbox.model.LockboxFileRoot;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -97,7 +96,7 @@ class LockboxFileParserDlbxTest {
         void parseWithResult_dlbxAspecJson_throwsEV200() {
             String filePath = classpathFile("DLBX_Aspec.json");
 
-            assertThatThrownBy(() -> parser.parseWithResult(filePath))
+            assertThatThrownBy(() -> parser.parseWithResult(filePath, null))
                 .isInstanceOf(LockboxValidationException.class)
                 .hasMessageContaining("EV-200");
         }
@@ -352,7 +351,7 @@ class LockboxFileParserDlbxTest {
             Files.writeString(f, json);
 
             com.bofa.ibox.lockbox.model.ParseResult result =
-                parser.parseWithResult(f.toString());
+                parser.parseWithResult(f.toString(), null);
 
             assertThat(result.getValidRows()).hasSize(1);
             assertThat(result.getValidRows().get(0).getLockboxNumber()).isEqualTo("000002");
@@ -390,7 +389,7 @@ class LockboxFileParserDlbxTest {
             Files.writeString(f, json);
 
             com.bofa.ibox.lockbox.model.ParseResult result =
-                parser.parseWithResult(f.toString());
+                parser.parseWithResult(f.toString(), null);
 
             // Since EV-202 is now a warning, the record should be valid
             assertThat(result.getValidRows()).hasSize(1);
@@ -434,7 +433,7 @@ class LockboxFileParserDlbxTest {
             Files.writeString(f, json);
 
             com.bofa.ibox.lockbox.model.ParseResult result =
-                parser.parseWithResult(f.toString());
+                parser.parseWithResult(f.toString(), null);
 
             assertThat(result.getValidRows()).isEmpty();
             assertThat(result.getRejectedEntries()).hasSize(2);
@@ -454,7 +453,7 @@ class LockboxFileParserDlbxTest {
             Path f = tempDir.resolve("no_summary.json");
             Files.writeString(f, json);
 
-            assertThatThrownBy(() -> parser.parseWithResult(f.toString()))
+            assertThatThrownBy(() -> parser.parseWithResult(f.toString(), null))
                 .isInstanceOf(com.bofa.ibox.lockbox.exception.LockboxValidationException.class)
                 .hasMessageContaining("EV-200");
         }
@@ -633,7 +632,7 @@ class LockboxFileParserDlbxTest {
             String filePath = classpathFile("DLBX_Aspec.json");
 
             com.bofa.ibox.lockbox.model.ParseResult result =
-                parser.parseWithResult(filePath);
+                parser.parseWithResult(filePath, null);
 
             // At least some records are rejected
             assertThat(result.getRejectedEntries())

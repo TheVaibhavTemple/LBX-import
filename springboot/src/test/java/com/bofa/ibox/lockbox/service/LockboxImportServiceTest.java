@@ -71,7 +71,7 @@ class LockboxImportServiceTest {
                 .thenReturn(0);                                     // not a duplicate
             when(stagingService.createImportLog(anyString(), any(), anyInt(), anyInt()))
                 .thenReturn(7L);                                    // importLogId = 7
-            when(fileParser.parseWithResult(anyString()))
+            when(fileParser.parseWithResult(anyString(), anyString()))
                 .thenReturn(mockResult);
 
             importService.processFile(validProcessingFile);
@@ -104,7 +104,7 @@ class LockboxImportServiceTest {
             when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any()))
                 .thenReturn(0);
             when(stagingService.createImportLog(anyString(), any(), anyInt(), anyInt())).thenReturn(8L);
-            when(fileParser.parseWithResult(anyString())).thenReturn(emptyResult);
+            when(fileParser.parseWithResult(anyString(), anyString())).thenReturn(emptyResult);
 
             importService.processFile(validProcessingFile);
 
@@ -125,7 +125,7 @@ class LockboxImportServiceTest {
             when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any()))
                 .thenReturn(0);
             when(stagingService.createImportLog(anyString(), any(), anyInt(), anyInt())).thenReturn(9L);
-            when(fileParser.parseWithResult(anyString())).thenReturn(mixed);
+            when(fileParser.parseWithResult(anyString(), anyString())).thenReturn(mixed);
 
             importService.processFile(validProcessingFile);
 
@@ -145,7 +145,7 @@ class LockboxImportServiceTest {
             when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any()))
                 .thenReturn(0);
             when(stagingService.createImportLog(anyString(), any(), anyInt(), anyInt())).thenReturn(10L);
-            when(fileParser.parseWithResult(anyString()))
+            when(fileParser.parseWithResult(anyString(), anyString()))
                 .thenReturn(new ParseResult(List.of(), List.of()));
 
             importService.processFile(plain.toFile());
@@ -308,7 +308,7 @@ class LockboxImportServiceTest {
             // so it is never reached when parseWithResult() throws – no stub needed
             when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any()))
                 .thenReturn(0);
-            when(fileParser.parseWithResult(anyString()))
+            when(fileParser.parseWithResult(anyString(), anyString()))
                 .thenThrow(new IOException("disk error"));
 
             assertThatThrownBy(() -> importService.processFile(validProcessingFile))
@@ -324,7 +324,7 @@ class LockboxImportServiceTest {
             // so it is never reached when parseWithResult() throws – no stub needed
             when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any()))
                 .thenReturn(0);
-            when(fileParser.parseWithResult(anyString()))
+            when(fileParser.parseWithResult(anyString(), anyString()))
                 .thenThrow(new LockboxValidationException(ErrorCode.EV_215, "count mismatch"));
 
             assertThatThrownBy(() -> importService.processFile(validProcessingFile))
@@ -360,11 +360,12 @@ class LockboxImportServiceTest {
 
     private FileSpecInfo mockFileSpecInfo() {
         return FileSpecInfo.builder()
-            .fileSpecId   (99L)
-            .providerId   (1)
-            .clientId     (10)
-            .lobId        (2)
-            .applicationId(3)
+            .fileSpecId            (99L)
+            .providerId            (1)
+            .clientId              (10)
+            .lobId                 (2)
+            .applicationId         (3)
+            .specificationIdentifier("1.6.0")
             .build();
     }
 

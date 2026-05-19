@@ -17,12 +17,16 @@ public class FileSpecInfo {
     /** lob_id from ibox_application */
     private final int lobId;
 
+    /** specificationidentifier from ibox_specification (looked up via client_id + provider_id) */
+    private final String specificationIdentifier;
+
     private FileSpecInfo(Builder builder) {
         this.fileSpecId = builder.fileSpecId;
         this.providerId = builder.providerId;
         this.clientId = builder.clientId;
         this.applicationId = builder.applicationId;
         this.lobId = builder.lobId;
+        this.specificationIdentifier = builder.specificationIdentifier;
     }
 
     public long getFileSpecId() { return fileSpecId; }
@@ -30,6 +34,7 @@ public class FileSpecInfo {
     public int getClientId() { return clientId; }
     public int getApplicationId() { return applicationId; }
     public int getLobId() { return lobId; }
+    public String getSpecificationIdentifier() { return specificationIdentifier; }
 
     public static Builder builder() {
         return new Builder();
@@ -41,6 +46,7 @@ public class FileSpecInfo {
         private int clientId;
         private int applicationId;
         private int lobId;
+        private String specificationIdentifier;
 
         public Builder fileSpecId(long fileSpecId) {
             this.fileSpecId = fileSpecId;
@@ -64,6 +70,11 @@ public class FileSpecInfo {
 
         public Builder lobId(int lobId) {
             this.lobId = lobId;
+            return this;
+        }
+
+        public Builder specificationIdentifier(String specificationIdentifier) {
+            this.specificationIdentifier = specificationIdentifier;
             return this;
         }
 
