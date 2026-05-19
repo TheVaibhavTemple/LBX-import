@@ -432,7 +432,7 @@ public class LockboxFileParser {
             throw new LockboxValidationException(ErrorCode.EF_106,
                     "SummaryInfo.ASPECDate is missing");
         }
-        String datePart = (aspecDateStr.length() > 10 && aspecDateStr.charAt(10) == 'T')
+        String datePart = aspecDateStr.length() > 10
                 ? aspecDateStr.substring(0, 10)
                 : aspecDateStr;
         LocalDate aspecDate;
