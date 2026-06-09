@@ -99,8 +99,8 @@ public class LockboxFileParser {
         validateAddressPostalCodes(root.getLockboxes());
         warnClosedAndNonDigital(root.getLockboxes());
 
-        log.info("Validation passed – {} lockbox entries, SpecificationIdentifier={}",
-                root.getLockboxes().size(), root.getSpecificationIdentifier());
+        log.info("Validation passed – {} lockbox entries",
+                root.getLockboxes().size());
 
         return flatten(root);
     }

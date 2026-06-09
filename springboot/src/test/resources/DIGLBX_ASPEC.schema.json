@@ -3,9 +3,6 @@
     "title": "Bank of America Digital Lockbox ASPEC Schema",
     "type": "object",
     "properties": {
-        "SpecificationIdentifier": {
-            "type": "string"
-        },
         "Lockboxes": {
             "type": "array",
             "items": {
@@ -132,7 +129,6 @@
         }
     },
     "required": [
-        "SpecificationIdentifier",
         "Lockboxes",
         "SummaryInfo"
     ]
