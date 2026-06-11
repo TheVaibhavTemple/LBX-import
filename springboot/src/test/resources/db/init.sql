@@ -156,6 +156,25 @@ CREATE INDEX IF NOT EXISTS idx_import_detail_lockbox
     ON ibox_uat.ibox_lockbox_import_detail (lockboxnumber, site_identifier);
 
 -- -------------------------------------------------------
+-- Batch mode master table – used to resolve batchmode/batchsize
+-- for a given provider_id + client_id during import.
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS ibox_uat.batch_mode_master (
+    buniqueid    serial4     NOT NULL,
+    batchmodenum int4        NULL,
+    batchmode    varchar(100) NULL,
+    batchstatus  varchar(20)  NULL,
+    batchsize    int4         NULL,
+    created_at   timestamp    DEFAULT CURRENT_TIMESTAMP NULL,
+    updated_at   timestamp    DEFAULT CURRENT_TIMESTAMP NULL,
+    provider_id  int4         NULL,
+    client_id    int4         NULL,
+    CONSTRAINT batch_mode_master_pkey PRIMARY KEY (buniqueid),
+    CONSTRAINT uq_batch_mode_master_num_mode_provider
+        UNIQUE (batchmodenum, batchmode, provider_id)
+);
+
+-- -------------------------------------------------------
 -- Stored procedure – mirrors 02_import_procedure.sql
 -- NOTE: purge of staging rows is handled by LockboxStagingPurgeService
 -- -------------------------------------------------------
@@ -168,7 +187,10 @@ CREATE OR REPLACE PROCEDURE ibox_uat.import_lockbox_data(
     p_application_id    integer,
     p_rejected_count    integer     DEFAULT 0,
     p_incoming_file_id  bigint      DEFAULT NULL,
-    p_modified_by       varchar     DEFAULT 'LOCKBOX_IMPORT'
+    p_modified_by       varchar     DEFAULT 'LOCKBOX_IMPORT',
+    p_batchmode         varchar     DEFAULT NULL,
+    p_batchsize         integer     DEFAULT NULL,
+    p_batchmode_int     integer     DEFAULT NULL
 )
 LANGUAGE plpgsql
 AS $$
@@ -219,7 +241,8 @@ BEGIN
         specificationidentifier, addresstype, addresscompanyname, postofficebox,
         addressattn, addressstreet1, addressstreet2, addresscity, addressstate,
         addresspostalcode, addresscountry, incomingfileid, modified_by,
-        last_updated_by, last_update_on, created_at, updated_at, row_hash
+        last_updated_by, last_update_on, created_at, updated_at, row_hash,
+        batchmode, batchsize, batchmode_int
     )
     SELECT
         g.globalclientidentifierid, s.site_identifier, p_provider_id, p_lob_id, p_application_id,
@@ -228,7 +251,8 @@ BEGIN
         s.addressattn, s.addressstreet1, s.addressstreet2, s.addresscity, s.addressstate,
         s.addresspostalcode, COALESCE(s.addresscountry, 'US'),
         p_incoming_file_id, p_modified_by, p_modified_by, now(), now(), now(),
-        s.row_hash
+        s.row_hash,
+        p_batchmode, p_batchsize, p_batchmode_int
     FROM ibox_uat.ibox_lockbox_staging s
     LEFT JOIN ibox_uat.ibox_global_client_identifier g
            ON g.familygci   = s.familygci

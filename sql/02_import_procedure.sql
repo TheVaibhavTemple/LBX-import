@@ -13,14 +13,17 @@
 --   p_rejected_count   – number of duplicate records rejected in Java
 --   p_incoming_file_id – incomingfileid (pass NULL if not used)
 --   p_modified_by      – username / job name performing the import
+--   p_batchmode        – batchmode resolved from batch_mode_master (NULL if not found)
+--   p_batchsize        – batchsize resolved from batch_mode_master (NULL if not found)
+--   p_batchmode_int    – batchmodenum resolved from batch_mode_master (NULL if not found)
 --
 -- Flow:
 --   1.  Update import log to IN_PROGRESS (log entry already created by Java)
 --   2.  Upsert ibox_global_client_identifier for new GCI combinations
 --   3a. Log INSERTs into ibox_lockbox_import_detail
---   3b. Insert new lockbox rows into ibox_lockbox
+--   3b. Insert new lockbox rows into ibox_lockbox (incl. batchmode/batchsize/batchmode_int)
 --   4a. Log UPDATEs (with old/new field values) into ibox_lockbox_import_detail
---   4b. Update changed lockbox rows in ibox_lockbox
+--   4b. Update changed lockbox rows in ibox_lockbox (batch columns NOT updated)
 --   5.  Mark import log SUCCESS (or FAILED on exception)
 -- ============================================================
 
@@ -31,9 +34,12 @@ CREATE OR REPLACE PROCEDURE ibox_uat.import_lockbox_data(
     p_provider_id       integer,
     p_lob_id            integer,
     p_application_id    integer,
-    p_rejected_count    integer     DEFAULT 0,
-    p_incoming_file_id  bigint      DEFAULT NULL,
-    p_modified_by       character varying DEFAULT 'LOCKBOX_IMPORT'
+    p_rejected_count    integer             DEFAULT 0,
+    p_incoming_file_id  bigint              DEFAULT NULL,
+    p_modified_by       character varying   DEFAULT 'LOCKBOX_IMPORT',
+    p_batchmode         character varying   DEFAULT NULL,
+    p_batchsize         integer             DEFAULT NULL,
+    p_batchmode_int     integer             DEFAULT NULL
 )
 LANGUAGE plpgsql
 AS $$
@@ -84,6 +90,8 @@ BEGIN
 
     -- --------------------------------------------------------
     -- 3b. Insert new lockbox rows
+    --     batchmode / batchsize / batchmode_int are set ONLY on INSERT
+    --     (they are NOT overwritten when an existing row is updated)
     -- --------------------------------------------------------
     INSERT INTO ibox_uat.ibox_lockbox
     (
@@ -92,7 +100,8 @@ BEGIN
         specificationidentifier, addresstype, addresscompanyname, postofficebox,
         addressattn, addressstreet1, addressstreet2, addresscity, addressstate,
         addresspostalcode, addresscountry, incomingfileid, modified_by,
-        last_updated_by, last_update_on, created_at, updated_at, row_hash
+        last_updated_by, last_update_on, created_at, updated_at, row_hash,
+        batchmode, batchsize, batchmode_int
     )
     SELECT
         g.globalclientidentifierid, s.site_identifier, p_provider_id, p_lob_id, p_application_id,
@@ -101,7 +110,8 @@ BEGIN
         s.addressattn, s.addressstreet1, s.addressstreet2, s.addresscity, s.addressstate,
         s.addresspostalcode, COALESCE(s.addresscountry, 'US'),
         p_incoming_file_id, p_modified_by, p_modified_by, now(), now(), now(),
-        s.row_hash
+        s.row_hash,
+        p_batchmode, p_batchsize, p_batchmode_int
     FROM ibox_uat.ibox_lockbox_staging s
     LEFT JOIN ibox_uat.ibox_global_client_identifier g
            ON g.familygci   = s.familygci

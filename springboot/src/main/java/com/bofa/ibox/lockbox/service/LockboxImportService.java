@@ -3,6 +3,7 @@ package com.bofa.ibox.lockbox.service;
 import com.bofa.ibox.lockbox.LockboxConstants;
 import com.bofa.ibox.lockbox.config.LockboxImportProperties;
 import com.bofa.ibox.lockbox.exception.LockboxValidationException;
+import com.bofa.ibox.lockbox.model.BatchModeInfo;
 import com.bofa.ibox.lockbox.model.ErrorCode;
 import com.bofa.ibox.lockbox.model.FileSpecInfo;
 import com.bofa.ibox.lockbox.model.ParseResult;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -47,19 +49,22 @@ public class LockboxImportService {
     private final LockboxFileParser       fileParser;
     private final LockboxStagingService   stagingService;
     private final FileSpecLookupService   fileSpecLookupService;
+    private final BatchModeLookupService  batchModeLookupService;
     private final LockboxImportProperties props;
     private final JdbcTemplate            jdbcTemplate;
 
     public LockboxImportService(LockboxFileParser fileParser,
                                 LockboxStagingService stagingService,
                                 FileSpecLookupService fileSpecLookupService,
+                                BatchModeLookupService batchModeLookupService,
                                 LockboxImportProperties props,
                                 JdbcTemplate jdbcTemplate) {
-        this.fileParser = fileParser;
-        this.stagingService = stagingService;
-        this.fileSpecLookupService = fileSpecLookupService;
-        this.props = props;
-        this.jdbcTemplate = jdbcTemplate;
+        this.fileParser             = fileParser;
+        this.stagingService         = stagingService;
+        this.fileSpecLookupService  = fileSpecLookupService;
+        this.batchModeLookupService = batchModeLookupService;
+        this.props                  = props;
+        this.jdbcTemplate           = jdbcTemplate;
     }
 
     private String duplicateCheckSql;
@@ -109,8 +114,14 @@ public class LockboxImportService {
         // ── 4. EF-102: resolve provider + application from ibox_file_spec
         //       Done BEFORE parsing so we fail fast if the provider is unknown
         FileSpecInfo spec = fileSpecLookupService.resolve(fileName);
-        
-        // ── 5. Parse + validate BEFORE opening DB transaction ──────────
+
+        // ── 5. Resolve batch mode/size from batch_mode_master (non-fatal)
+        //       Uses provider_id + client_id already resolved in step 4.
+        //       Returns empty Optional (and logs a warning) if no active row found.
+        Optional<BatchModeInfo> batchModeInfo =
+                batchModeLookupService.resolve(spec.getProviderId(), spec.getClientId());
+
+        // ── 6. Parse + validate BEFORE opening DB transaction ──────────
         //       (keeps file I/O outside the DB transaction boundary)
         ParseResult result;
         try {
@@ -120,8 +131,8 @@ public class LockboxImportService {
             throw new RuntimeException("Failed to read lockbox file", e);
         }
 
-        // ── 6. Persist parsed result in a single transaction ───────────
-        persistResult(result, fileName, fileDate, spec);
+        // ── 7. Persist parsed result in a single transaction ───────────
+        persistResult(result, fileName, fileDate, spec, batchModeInfo.orElse(null));
 
         log.info("Import finished – file: {}, provider_id: {}, application_id: {}",
             fileName, spec.getProviderId(), spec.getApplicationId());
@@ -133,7 +144,7 @@ public class LockboxImportService {
 
     @Transactional
     void persistResult(ParseResult result, String fileName, LocalDate fileDate,
-                       FileSpecInfo spec) {
+                       FileSpecInfo spec, BatchModeInfo batchModeInfo) {
         long importLogId = stagingService.createImportLog(fileName, fileDate, spec.getProviderId(), spec.getClientId());
 
         log.info("Parse complete – valid: {}, rejected: {}",
@@ -156,7 +167,8 @@ public class LockboxImportService {
             spec.getProviderId(),
             spec.getLobId(),
             spec.getApplicationId(),
-            result.rejectedCount()
+            result.rejectedCount(),
+            batchModeInfo
         );
 
         log.info("Import complete – import_log_id: {}", importLogId);

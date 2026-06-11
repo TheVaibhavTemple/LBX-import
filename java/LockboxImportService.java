@@ -276,25 +276,45 @@ public class LockboxImportService {
 
     // ----------------------------------------------------------------
     // Call the stored procedure
+    //
+    // Full signature of import_lockbox_data (12 params):
+    //   p_log_id            bigint      -- NULL in standalone (no import log table)
+    //   p_file_name         varchar
+    //   p_aspec_date        date
+    //   p_provider_id       integer
+    //   p_lob_id            integer
+    //   p_application_id    integer
+    //   p_rejected_count    integer     DEFAULT 0
+    //   p_incoming_file_id  bigint      DEFAULT NULL
+    //   p_modified_by       varchar     DEFAULT 'LOCKBOX_IMPORT'
+    //   p_batchmode         varchar     DEFAULT NULL
+    //   p_batchsize         integer     DEFAULT NULL
+    //   p_batchmode_int     integer     DEFAULT NULL
     // ----------------------------------------------------------------
     void callImportProcedure(Connection conn, String fileName, LocalDate aspecDate,
                              int providerId, int lobId, int applicationId)
             throws SQLException {
 
         final String call =
-            "CALL ibox_uat.import_lockbox_data(?,?,?,?,?,?,?)";
+            "CALL ibox_uat.import_lockbox_data(?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try (CallableStatement cs = conn.prepareCall(call)) {
-            cs.setString(1, fileName);
-            cs.setObject(2, aspecDate != null ? Date.valueOf(aspecDate) : null);
-            cs.setInt   (3, providerId);
-            cs.setInt   (4, lobId);
-            cs.setInt   (5, applicationId);
-            cs.setNull  (6, Types.BIGINT);          // incomingfileid – pass NULL if unused
-            cs.setString(7, "LOCKBOX_IMPORT_JOB");  // modified_by
+            cs.setNull  (1,  Types.BIGINT);          // p_log_id         – NULL (standalone has no import log)
+            cs.setString(2,  fileName);              // p_file_name
+            cs.setObject(3,  aspecDate != null ? Date.valueOf(aspecDate) : null); // p_aspec_date
+            cs.setInt   (4,  providerId);            // p_provider_id
+            cs.setInt   (5,  lobId);                 // p_lob_id
+            cs.setInt   (6,  applicationId);         // p_application_id
+            cs.setInt   (7,  0);                     // p_rejected_count  – 0 (no rejection tracking)
+            cs.setNull  (8,  Types.BIGINT);          // p_incoming_file_id – NULL if unused
+            cs.setString(9,  "LOCKBOX_IMPORT_JOB"); // p_modified_by
+            cs.setNull  (10, Types.VARCHAR);         // p_batchmode       – NULL (no batch_mode_master lookup)
+            cs.setNull  (11, Types.INTEGER);         // p_batchsize       – NULL
+            cs.setNull  (12, Types.INTEGER);         // p_batchmode_int   – NULL
             cs.execute();
         }
     }
+
 
     // ----------------------------------------------------------------
     // Helpers

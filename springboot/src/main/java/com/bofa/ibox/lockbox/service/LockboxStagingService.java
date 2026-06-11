@@ -2,6 +2,7 @@ package com.bofa.ibox.lockbox.service;
 
 import com.bofa.ibox.lockbox.LockboxConstants;
 import com.bofa.ibox.lockbox.config.LockboxImportProperties;
+import com.bofa.ibox.lockbox.model.BatchModeInfo;
 import com.bofa.ibox.lockbox.model.LockboxRow;
 import com.bofa.ibox.lockbox.model.RejectedEntry;
 import jakarta.annotation.PostConstruct;
@@ -61,7 +62,7 @@ public class LockboxStagingService {
                           + " (import_log_id, lockboxnumber, site_identifier, postofficebox, operation, changed_fields)"
                           + " VALUES (?, ?, ?, ?, '" + LockboxConstants.STATUS_REJECTED + "',"
                           + " jsonb_build_object('reason', ?::text))";
-        callProcedureSql  = "CALL " + s + "." + LockboxConstants.PROC_IMPORT_DATA + "(?,?,?,?,?,?,?,?,?)";
+        callProcedureSql  = "CALL " + s + "." + LockboxConstants.PROC_IMPORT_DATA + "(?,?,?,?,?,?,?,?,?,?,?,?)";
         log.debug("SQL initialised for schema '{}'", s);
     }
 
@@ -162,9 +163,13 @@ public class LockboxStagingService {
     public void callImportProcedure(long importLogId, String fileName,
                                     LocalDate aspecDate,
                                     int providerId, int lobId, int applicationId,
-                                    int rejectedCount) {
-        log.info("Calling import_lockbox_data (import_log_id={}, provider_id={}, application_id={})",
-            importLogId, providerId, applicationId);
+                                    int rejectedCount,
+                                    BatchModeInfo batchModeInfo) {
+        log.info("Calling import_lockbox_data (import_log_id={}, provider_id={}, application_id={}, "
+               + "batchmode='{}', batchsize={})",
+            importLogId, providerId, applicationId,
+            batchModeInfo != null ? batchModeInfo.getBatchMode() : null,
+            batchModeInfo != null ? batchModeInfo.getBatchSize() : null);
 
         jdbcTemplate.update(callProcedureSql,
             importLogId,
@@ -174,8 +179,11 @@ public class LockboxStagingService {
             lobId,
             applicationId,
             rejectedCount,
-            null,                       // incomingfileid
-            props.getModifiedBy()
+            null,                                                             // incomingfileid
+            props.getModifiedBy(),
+            batchModeInfo != null ? batchModeInfo.getBatchMode()    : null,   // p_batchmode
+            batchModeInfo != null ? batchModeInfo.getBatchSize()    : null,   // p_batchsize
+            batchModeInfo != null ? batchModeInfo.getBatchModeNum() : null    // p_batchmode_int
         );
 
         log.info("Stored procedure completed successfully");

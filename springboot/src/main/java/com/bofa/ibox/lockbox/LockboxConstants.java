@@ -40,10 +40,16 @@ public final class LockboxConstants {
     // Schema prefix (e.g. "ibox_uat.") is prepended at runtime from
     // LockboxImportProperties.dbSchema – only the unqualified names live here.
 
-    public static final String TABLE_IMPORT_LOG    = "ibox_lockbox_import_log";
-    public static final String TABLE_STAGING       = "ibox_lockbox_staging";
-    public static final String TABLE_IMPORT_DETAIL = "ibox_lockbox_import_detail";
-    public static final String PROC_IMPORT_DATA    = "import_lockbox_data";
+    public static final String TABLE_IMPORT_LOG       = "ibox_lockbox_import_log";
+    public static final String TABLE_STAGING          = "ibox_lockbox_staging";
+    public static final String TABLE_IMPORT_DETAIL    = "ibox_lockbox_import_detail";
+    public static final String PROC_IMPORT_DATA       = "import_lockbox_data";
+    public static final String TABLE_BATCH_MODE_MASTER = "batch_mode_master";
+
+    // ── Batch mode status ─────────────────────────────────────────────
+
+    /** Value in {@code batch_mode_master.batchstatus} that marks a usable row. */
+    public static final String BATCH_STATUS_ACTIVE    = "ACTIVE";
 
     // ── Data defaults ─────────────────────────────────────────────────
 

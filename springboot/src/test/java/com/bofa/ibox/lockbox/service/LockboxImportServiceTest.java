@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -30,6 +31,7 @@ class LockboxImportServiceTest {
     @Mock LockboxFileParser       fileParser;
     @Mock LockboxStagingService   stagingService;
     @Mock FileSpecLookupService   fileSpecLookupService;
+    @Mock BatchModeLookupService  batchModeLookupService;
     @Mock LockboxImportProperties props;
     @Mock JdbcTemplate            jdbcTemplate;
 
@@ -52,6 +54,8 @@ class LockboxImportServiceTest {
         when(props.getDbSchema()).thenReturn("ibox_uat");
         // Default file-spec stub: resolves to provider=1, lob=2, application=3
         when(fileSpecLookupService.resolve(anyString())).thenReturn(mockFileSpecInfo());
+        // Default batch-mode stub: no matching row (non-fatal, continues with NULLs)
+        when(batchModeLookupService.resolve(anyInt(), anyInt())).thenReturn(Optional.empty());
         importService.initSql();   // @PostConstruct is not called by @InjectMocks – trigger manually
     }
 
@@ -88,10 +92,11 @@ class LockboxImportServiceTest {
                 eq(7L),
                 eq("DIGLBX_Aspec_20260416T120000.json"),
                 eq(LocalDate.of(2026, 4, 16)),
-                eq(1),   // providerId
-                eq(2),   // lobId
-                eq(3),   // applicationId
-                eq(0));  // rejectedCount
+                eq(1),    // providerId
+                eq(2),    // lobId
+                eq(3),    // applicationId
+                eq(0),    // rejectedCount
+                isNull()); // batchModeInfo – null because mock returns Optional.empty()
         }
 
         @Test
@@ -111,7 +116,7 @@ class LockboxImportServiceTest {
             verify(stagingService, never()).loadStaging(anyLong(), any());
             verify(stagingService).logRejected(eq(8L), eq(List.of(rejected)));
             verify(stagingService).callImportProcedure(eq(8L), anyString(), any(),
-                eq(1), eq(2), eq(3), eq(1));
+                eq(1), eq(2), eq(3), eq(1), isNull());
         }
 
         @Test
@@ -132,7 +137,7 @@ class LockboxImportServiceTest {
             verify(stagingService).loadStaging(eq(9L), eq(List.of(validRow)));
             verify(stagingService).logRejected(eq(9L), eq(List.of(rejected)));
             verify(stagingService).callImportProcedure(eq(9L), anyString(), any(),
-                eq(1), eq(2), eq(3), eq(1));
+                eq(1), eq(2), eq(3), eq(1), isNull());
         }
 
         @Test
