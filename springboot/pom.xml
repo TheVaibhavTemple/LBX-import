@@ -21,9 +21,11 @@
     <description>Daily Digital Lockbox File Import</description>
 
     <properties>
-        <java.version>21</java.version>     
+        <java.version>21</java.version>
         <json-schema-validator.version>2.0.1</json-schema-validator.version>
         <testcontainers.version>1.20.4</testcontainers.version>
+        <!-- CVE-2026-41850 (High): spring-expression 7.0.7 vulnerable; fixed in 7.0.8 -->
+        <spring-framework.version>7.0.8</spring-framework.version>
     </properties>
 
     <dependencies>
