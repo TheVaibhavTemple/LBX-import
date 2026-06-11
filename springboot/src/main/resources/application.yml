@@ -5,10 +5,10 @@ spring:
     active: local
 
 # ================= Global Settings (All Profiles) =================
-#logging:
-#  level:
-#    com.bofa.ibox.lockbox: INFO
-#    org.springframework.jdbc: WARN
+logging:
+  level:
+    com.bofa.ibox.lockbox: INFO
+    org.springframework.jdbc: WARN
 
 # ================= LOCAL =================
 ---
@@ -65,9 +65,9 @@ spring:
 
 lockbox:
   import:
-    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/check/in}
-    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/check/in/processed}
-    error-dir:     ${LOCKBOX_ERROR_DIR:D:/data/ibox/check/in/error}
+    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/driver/in}
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/driver/processed}
+    error-dir:     ${LOCKBOX_ERROR_DIR:/data/ibox/driver/error}
     scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
     scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}
     scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}
@@ -76,7 +76,7 @@ lockbox:
     max-lockbox-count:     50000
     max-file-age-days:     2
     staging-retention-days: 30
-    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
+    db-schema: ${LOCKBOX_DB_SCHEMA:public}
 # ================= QA =================
 ---
 spring:
@@ -98,9 +98,9 @@ spring:
 
 lockbox:
   import:
-    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/check/in}
-    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/check/in/processed}
-    error-dir:     ${LOCKBOX_ERROR_DIR:D:/data/ibox/check/in/error}
+    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/driver/in}
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/driver/processed}
+    error-dir:     ${LOCKBOX_ERROR_DIR:/data/ibox/driver/error}
     scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
     scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}
     scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}
@@ -109,7 +109,7 @@ lockbox:
     max-lockbox-count:     50000
     max-file-age-days:     2
     staging-retention-days: 30
-    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
+    db-schema: ${LOCKBOX_DB_SCHEMA:ibox_qa}
 # ================= UAT =================
 ---
 spring:
@@ -131,9 +131,9 @@ spring:
 
 lockbox:
   import:
-    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/check/in}
-    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/check/in/processed}
-    error-dir:     ${LOCKBOX_ERROR_DIR:D:/data/ibox/check/in/error}
+    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/driver/in}
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/driver/processed}
+    error-dir:     ${LOCKBOX_ERROR_DIR:/data/ibox/driver/error}
     scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
     scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}
     scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}
@@ -142,7 +142,7 @@ lockbox:
     max-lockbox-count:     50000
     max-file-age-days:     2
     staging-retention-days: 30
-    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
+    db-schema: ${LOCKBOX_DB_SCHEMA:ibox_uat}
 # ================= PROD =================
 ---
 spring:
@@ -150,7 +150,7 @@ spring:
     activate:
       on-profile: prod
   datasource:
-    url: ${DB_URL:jdbc:postgresql://psqlecxprodeus1.exelatech.cloud:5432/ibox?currentSchema=ibox_prod}
+    url: ${DB_URL:jdbc:postgresql://psqlecxprodeus1.exelatech.cloud:5432/ibox?currentSchema=ibox}
     username: ${DB_USERNAME:ibox_user}
     password: ${DB_PASSWORD:ibox_user123#}
     driver-class-name: org.postgresql.Driver
@@ -164,9 +164,9 @@ spring:
 
 lockbox:
   import:
-    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/check/in}
-    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/check/in/processed}
-    error-dir:     ${LOCKBOX_ERROR_DIR:D:/data/ibox/check/in/error}
+    in-dir:        ${LOCKBOX_IN_DIR:/data/ibox/driver/in}
+    processed-dir: ${LOCKBOX_PROCESSED_DIR:/data/ibox/driver/processed}
+    error-dir:     ${LOCKBOX_ERROR_DIR:/data/ibox/driver/error}
     scheduler-enabled:          ${LOCKBOX_SCHEDULER_ENABLED:true}
     scheduler-interval-ms:      ${LOCKBOX_SCHEDULER_INTERVAL_MS:10000}
     scheduler-initial-delay-ms: ${LOCKBOX_SCHEDULER_INITIAL_DELAY_MS:5000}
