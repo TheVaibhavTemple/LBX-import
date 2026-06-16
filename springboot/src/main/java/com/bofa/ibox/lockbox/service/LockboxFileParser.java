@@ -696,7 +696,7 @@ public class LockboxFileParser {
                         .addressCity(addr.getAddressCity())
                         .addressState(addr.getAddressState())
                         .addressPostalCode(addr.getAddressPostalCode())
-                        .addressCountry(addr.getAddressCountry() != null
+                        .addressCountry(!isBlank(addr.getAddressCountry())
                                 ? addr.getAddressCountry()
                                 : LockboxConstants.DEFAULT_COUNTRY)
                         .build();
@@ -743,7 +743,7 @@ public class LockboxFileParser {
                         .addressCity(addr.getAddressCity())
                         .addressState(addr.getAddressState())
                         .addressPostalCode(addr.getAddressPostalCode())
-                        .addressCountry(addr.getAddressCountry() != null
+                        .addressCountry(!isBlank(addr.getAddressCountry())
                                 ? addr.getAddressCountry()
                                 : LockboxConstants.DEFAULT_COUNTRY)
                         .build();
