@@ -91,6 +91,24 @@ public class LockboxImportProperties {
     )
     private String dbSchema = "ibox_uat";
 
+    /**
+     * Profile-specific Service Bus eventName used for SQL-filter routing on the topic
+     * subscription.  Must match the value the notification service subscribes to.
+     * Examples: emailNotificationSenderDev, emailSender.
+     * Override via env var LOCKBOX_EVENT_NAME.
+     */
+    @NotBlank(message = "lockbox.import.event-name must be set")
+    private String eventName = "emailNotificationSenderDev";
+
+    /**
+     * Human-readable environment label injected into the Service Bus message
+     * dynamicValues so the notification service can include it in the e-mail.
+     * Examples: local, dev, qa, uat, prod.
+     * Override via env var LOCKBOX_ENV.
+     */
+    @NotBlank(message = "lockbox.import.env must be set")
+    private String env = "local";
+
     public String getInDir() {
         return inDir;
     }
@@ -169,5 +187,21 @@ public class LockboxImportProperties {
 
     public void setDbSchema(String dbSchema) {
         this.dbSchema = dbSchema;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
+    public String getEnv() {
+        return env;
+    }
+
+    public void setEnv(String env) {
+        this.env = env;
     }
 }

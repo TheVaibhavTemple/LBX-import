@@ -32,9 +32,12 @@ public final class LockboxConstants {
 
     // ── Import log status values (ibox_lockbox_import_log.status) ─────
 
-    public static final String STATUS_IN_PROGRESS = "IN_PROGRESS";
-    public static final String STATUS_SUCCESS      = "SUCCESS";
-    public static final String STATUS_REJECTED     = "REJECTED";   // import_detail.operation
+    public static final String STATUS_IN_PROGRESS      = "IN_PROGRESS";
+    public static final String STATUS_SUCCESS           = "SUCCESS";
+    public static final String STATUS_REJECTED          = "REJECTED";           // import_detail.operation
+    /** Written to import_log when a duplicate file is detected and a Service Bus alert has been sent.
+     *  The row waits here until the external approval service calls back to approve or reject. */
+    public static final String STATUS_DUPLICATE_PENDING = "DUPLICATE_PENDING";
 
     // ── Database object names ─────────────────────────────────────────
     // Schema prefix (e.g. "ibox_uat.") is prepended at runtime from

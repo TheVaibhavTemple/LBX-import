@@ -43,6 +43,22 @@ lockbox:
     max-file-age-days:     2
     staging-retention-days: 30
     db-schema: ${LOCKBOX_DB_SCHEMA:public}
+    event-name: ${LOCKBOX_EVENT_NAME:emailNotificationSenderLocal}
+    env: ${LOCKBOX_ENV:local}
+
+spring:
+  jms:
+    servicebus:
+      pricing-tier: Standard
+      topic-client-id: ssssssdfef
+      connection-string: "Endpoint=sb://sbecxdeveus01.servicebus.windows.net/;SharedAccessKeyName=ab-config;SharedAccessKey=XCh5/lJpBqufvlKw/Frug+n0yXKsRvfF++ASbLVkCqg="
+    listener:
+      acknowledge-mode: dups-ok
+azure:
+  servicebus:
+    queue-name: sbecxdeveus01-queue-01
+    topic-name: sbecxdeveus01-topic-01
+    connection-string: "Endpoint=sb://sbecxdeveus01.servicebus.windows.net/;SharedAccessKeyName=ab-config;SharedAccessKey=XCh5/lJpBqufvlKw/Frug+n0yXKsRvfF++ASbLVkCqg="
 
 # ================= DEV =================
 ---
@@ -77,6 +93,22 @@ lockbox:
     max-file-age-days:     2
     staging-retention-days: 30
     db-schema: ${LOCKBOX_DB_SCHEMA:public}
+    event-name: ${LOCKBOX_EVENT_NAME:emailNotificationSenderDev}
+    env: ${LOCKBOX_ENV:dev}
+
+spring:
+  jms:
+    servicebus:
+      pricing-tier: Standard
+      topic-client-id: ssssssdfef
+      connection-string: "Endpoint=sb://sbecxdeveus01.servicebus.windows.net/;SharedAccessKeyName=ab-config;SharedAccessKey=XCh5/lJpBqufvlKw/Frug+n0yXKsRvfF++ASbLVkCqg="
+    listener:
+      acknowledge-mode: dups-ok
+azure:
+  servicebus:
+    queue-name: sbecxdeveus01-queue-01
+    topic-name: sbecxdeveus01-topic-01
+    connection-string: "Endpoint=sb://sbecxdeveus01.servicebus.windows.net/;SharedAccessKeyName=ab-config;SharedAccessKey=XCh5/lJpBqufvlKw/Frug+n0yXKsRvfF++ASbLVkCqg="
 # ================= QA =================
 ---
 spring:
@@ -110,6 +142,22 @@ lockbox:
     max-file-age-days:     2
     staging-retention-days: 30
     db-schema: ${LOCKBOX_DB_SCHEMA:ibox_qa}
+    event-name: ${LOCKBOX_EVENT_NAME:emailSender}
+    env: ${LOCKBOX_ENV:qa}
+
+spring:
+  jms:
+    servicebus:
+      pricing-tier: Standard
+      topic-client-id: ${TOPIC_CLIENT_ID:ssssssdfef}
+      connection-string: ${SERVICE_BUS_CONNECTION_STRING}
+    listener:
+      acknowledge-mode: dups-ok
+azure:
+  servicebus:
+    queue-name: sbecxdeveus01-queue-01
+    topic-name: sbecxqaeus01-topic-01
+    connection-string: ${SERVICE_BUS_CONNECTION_STRING}
 # ================= UAT =================
 ---
 spring:
@@ -143,6 +191,22 @@ lockbox:
     max-file-age-days:     2
     staging-retention-days: 30
     db-schema: ${LOCKBOX_DB_SCHEMA:ibox_uat}
+    event-name: ${LOCKBOX_EVENT_NAME:emailSender}
+    env: ${LOCKBOX_ENV:uat}
+
+spring:
+  jms:
+    servicebus:
+      pricing-tier: Standard
+      topic-client-id: ${TOPIC_CLIENT_ID:ssssssdfef}
+      connection-string: "Endpoint=sb://sbiboxecxuateus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=u1itE2j6r2tSA9otzYjCD9rQ7ip16dNgz+ASbHAZK6A="
+    listener:
+      acknowledge-mode: dups-ok
+azure:
+  servicebus:
+    queue-name: sbiboxecxuateus-queue-01
+    topic-name: sbiboxecxuateus-topic-01
+    connection-string: "Endpoint=sb://sbiboxecxuateus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=u1itE2j6r2tSA9otzYjCD9rQ7ip16dNgz+ASbHAZK6A="
 # ================= PROD =================
 ---
 spring:
@@ -176,3 +240,18 @@ lockbox:
     max-file-age-days:     2
     staging-retention-days: 30
     db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
+    event-name: ${LOCKBOX_EVENT_NAME:emailSender}
+    env: ${LOCKBOX_ENV:prod}
+
+spring:
+  jms:
+    servicebus:
+      pricing-tier: Standard
+      topic-client-id: ${TOPIC_CLIENT_ID:ssssssdfef}
+      connection-string: "Endpoint=sb://sbecxprodeus01.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=ZwSBAiRtC1/xHrtdS9EPBWPhOaIEC9mrM+ASbAjqlZw="
+      acknowledge-mode: dups-ok
+azure:
+  servicebus:
+    queue-name: sbecxprodeus01-queue-01
+    topic-name: sbecxprodeus01-topic-01
+    connection-string: "Endpoint=sb://sbecxprodeus01.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=ZwSBAiRtC1/xHrtdS9EPBWPhOaIEC9mrM+ASbAjqlZw="

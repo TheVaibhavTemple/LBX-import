@@ -30,50 +30,71 @@ import java.util.regex.Matcher;
  *
  * Flow:
  *  1. EF-101 – validate filename format (original name, before .processing suffix)
- *  2. EV-216 – reject if same ASPECDate was already imported successfully
- *  3. EF-102 – resolve provider + application from ibox_file_spec (DB lookup)
+ *  2. EF-102 – resolve provider + application from ibox_file_spec (DB lookup)
+ *  3. Duplicate check – if the same filename already exists in import_log (any status),
+ *                       create a DUPLICATE_PENDING log entry, publish a Service Bus
+ *                       alert, and stop (no data imported).
  *  4. Parse + validate JSON (EF-106, EF-108, EV-200…215) – outside transaction
  *  5. Persist in a single @Transactional boundary:
  *       a. Create import log entry → import_log_id
  *       b. Bulk-load valid rows into staging
  *       c. Log rejected records into import_detail
  *       d. Call stored procedure (upsert + audit)
+ *       e. Delete staging rows (clean up after successful promotion to main tables)
  */
 @Service
 public class LockboxImportService {
 
     private static final Logger log = LoggerFactory.getLogger(LockboxImportService.class);
 
-    // File naming and status constants are centralised in LockboxConstants.
-
-    private final LockboxFileParser       fileParser;
-    private final LockboxStagingService   stagingService;
-    private final FileSpecLookupService   fileSpecLookupService;
-    private final BatchModeLookupService  batchModeLookupService;
-    private final LockboxImportProperties props;
-    private final JdbcTemplate            jdbcTemplate;
+    private final LockboxFileParser          fileParser;
+    private final LockboxStagingService      stagingService;
+    private final FileSpecLookupService      fileSpecLookupService;
+    private final BatchModeLookupService     batchModeLookupService;
+    private final ServiceBusPublisherService serviceBusPublisher;
+    private final LockboxImportProperties    props;
+    private final JdbcTemplate              jdbcTemplate;
 
     public LockboxImportService(LockboxFileParser fileParser,
                                 LockboxStagingService stagingService,
                                 FileSpecLookupService fileSpecLookupService,
                                 BatchModeLookupService batchModeLookupService,
+                                ServiceBusPublisherService serviceBusPublisher,
                                 LockboxImportProperties props,
                                 JdbcTemplate jdbcTemplate) {
-        this.fileParser             = fileParser;
-        this.stagingService         = stagingService;
-        this.fileSpecLookupService  = fileSpecLookupService;
-        this.batchModeLookupService = batchModeLookupService;
-        this.props                  = props;
-        this.jdbcTemplate           = jdbcTemplate;
+        this.fileParser            = fileParser;
+        this.stagingService        = stagingService;
+        this.fileSpecLookupService = fileSpecLookupService;
+        this.batchModeLookupService= batchModeLookupService;
+        this.serviceBusPublisher   = serviceBusPublisher;
+        this.props                 = props;
+        this.jdbcTemplate          = jdbcTemplate;
     }
 
-    private String duplicateCheckSql;
+    // Pre-built SQL statements (schema name injected at startup)
+    private String duplicateFileNameCheckSql;
+    private String insertDuplicatePendingLogSql;
+    private String deleteStagingSql;
 
     @PostConstruct
     void initSql() {
-        duplicateCheckSql = "SELECT COUNT(*) FROM " + props.getDbSchema()
-            + "." + LockboxConstants.TABLE_IMPORT_LOG
-            + " WHERE aspec_date = ? AND status = '" + LockboxConstants.STATUS_SUCCESS + "'";
+        String s = props.getDbSchema();
+        // Filename-based duplicate check: any row with the same file_name already recorded?
+        duplicateFileNameCheckSql =
+            "SELECT COUNT(*) FROM " + s + "." + LockboxConstants.TABLE_IMPORT_LOG
+            + " WHERE file_name = ?";
+
+        // Insert a minimal import_log entry to record that a duplicate alert was sent
+        insertDuplicatePendingLogSql =
+            "INSERT INTO " + s + "." + LockboxConstants.TABLE_IMPORT_LOG
+            + " (file_name, aspec_date, status, provider_id, client_id, total_lockbox_count)"
+            + " VALUES (?, ?, '" + LockboxConstants.STATUS_DUPLICATE_PENDING + "', ?, ?, 0)"
+            + " RETURNING import_log_id";
+
+        // Delete staging rows after successful promotion to main tables
+        deleteStagingSql =
+            "DELETE FROM " + s + "." + LockboxConstants.TABLE_STAGING
+            + " WHERE import_log_id = ?";
     }
 
     // ----------------------------------------------------------------
@@ -86,7 +107,7 @@ public class LockboxImportService {
      *
      * @param file the locked file to process (e.g. DIGLBX_Aspec_20260416T120000.json.processing)
      * @throws IllegalArgumentException    if the file does not exist
-     * @throws LockboxValidationException  for EF-101, EF-102, EV-216, or any parse-time error
+     * @throws LockboxValidationException  for EF-101, EF-102, or any parse-time error
      * @throws RuntimeException            wrapping IOException from the parser
      */
     public void processFile(File file) {
@@ -108,16 +129,23 @@ public class LockboxImportService {
         // ── 2. Extract date from filename ───────────────────────────────
         LocalDate fileDate = extractFileDate(fileName);
 
-        // ── 3. EV-216: duplicate transmission check ─────────────────────
-        validateNotDuplicate(fileDate, fileName);
-
-        // ── 4. EF-102: resolve provider + application from ibox_file_spec
+        // ── 3. EF-102: resolve provider + application from ibox_file_spec
         //       Done BEFORE parsing so we fail fast if the provider is unknown
         FileSpecInfo spec = fileSpecLookupService.resolve(fileName);
 
+        // ── 4. Filename-based duplicate check ───────────────────────────
+        //       If the same file name already appears in import_log (under ANY status),
+        //       we must NOT import it.  Instead we create a DUPLICATE_PENDING record
+        //       and fire a Service Bus alert so the notification service can send the
+        //       approve/reject e-mail to the user.
+        if (isDuplicateFileName(fileName)) {
+            log.warn("Duplicate file detected by name '{}' – publishing alert and skipping import",
+                    fileName);
+            handleDuplicateFile(fileName, fileDate, spec);
+            return;  // ← stop here; do NOT proceed to import
+        }
+
         // ── 5. Resolve batch mode/size from batch_mode_master (non-fatal)
-        //       Uses provider_id + client_id already resolved in step 4.
-        //       Returns empty Optional (and logs a warning) if no active row found.
         Optional<BatchModeInfo> batchModeInfo =
                 batchModeLookupService.resolve(spec.getProviderId(), spec.getClientId());
 
@@ -174,7 +202,62 @@ public class LockboxImportService {
             batchModeInfo
         );
 
+        // ── Delete staging rows after successful promotion to main tables ──
+        int deleted = jdbcTemplate.update(deleteStagingSql, importLogId);
+        log.info("Staging cleanup complete – {} row(s) deleted for import_log_id={}",
+                deleted, importLogId);
+
         log.info("Import complete – import_log_id: {}", importLogId);
+    }
+
+    // ----------------------------------------------------------------
+    // Duplicate file handling
+    // ----------------------------------------------------------------
+
+    /**
+     * Checks whether a row with the given {@code fileName} already exists
+     * in {@code ibox_lockbox_import_log} (regardless of status).
+     *
+     * @param fileName original filename (without .processing suffix)
+     * @return {@code true} if one or more rows exist
+     */
+    boolean isDuplicateFileName(String fileName) {
+        Integer count = jdbcTemplate.queryForObject(
+                duplicateFileNameCheckSql, Integer.class, fileName);
+        return count != null && count > 0;
+    }
+
+    /**
+     * Called when a duplicate file is detected.
+     * <ol>
+     *   <li>Creates an {@code import_log} row with status {@code DUPLICATE_PENDING}
+     *       so there is an auditable record of the alert.</li>
+     *   <li>Publishes a {@code duplicateBOALockboxFileAlert} event to the
+     *       Service Bus topic so the notification service can send the
+     *       approve/reject e-mail.</li>
+     * </ol>
+     * This method does NOT import any data into the main tables.
+     *
+     * @param fileName original filename
+     * @param fileDate date extracted from the filename (may be null)
+     * @param spec     resolved file-spec (provider/client ids)
+     */
+    @Transactional
+    void handleDuplicateFile(String fileName, LocalDate fileDate, FileSpecInfo spec) {
+        // Create an auditable DUPLICATE_PENDING record and get its id
+        Long pendingLogId = jdbcTemplate.queryForObject(
+                insertDuplicatePendingLogSql,
+                Long.class,
+                fileName,
+                fileDate != null ? java.sql.Date.valueOf(fileDate) : null,
+                spec.getProviderId(),
+                spec.getClientId());
+
+        log.info("Duplicate-pending log created – import_log_id={}, file='{}' ",
+                pendingLogId, fileName);
+
+        // Publish the Service Bus alert (fire-and-forget from this service's perspective)
+        serviceBusPublisher.sendDuplicateFileAlert(pendingLogId);
     }
 
     // ----------------------------------------------------------------
@@ -185,21 +268,6 @@ public class LockboxImportService {
             throw new LockboxValidationException(ErrorCode.EF_101,
                 "Filename '" + fileName + "' does not match required format " +
                 "DIGLBX_Aspec_YYYYMMDDThhmmss.json");
-        }
-    }
-
-    // ----------------------------------------------------------------
-    // EV-216: Same ASPECDate must not already be successfully imported
-    // ----------------------------------------------------------------
-    void validateNotDuplicate(LocalDate fileDate, String fileName) {
-        if (fileDate == null) return;
-        Integer count = jdbcTemplate.queryForObject(
-            duplicateCheckSql, Integer.class,
-            java.sql.Date.valueOf(fileDate));
-        if (count != null && count > 0) {
-            throw new LockboxValidationException(ErrorCode.EV_216,
-                "File '" + fileName + "' with ASPECDate=" + fileDate +
-                " has already been successfully imported");
         }
     }
 
