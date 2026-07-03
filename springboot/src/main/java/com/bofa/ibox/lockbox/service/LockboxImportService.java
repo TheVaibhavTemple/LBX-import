@@ -145,7 +145,10 @@ public class LockboxImportService {
     @Transactional
     void persistResult(ParseResult result, String fileName, LocalDate fileDate,
                        FileSpecInfo spec, BatchModeInfo batchModeInfo) {
-        long importLogId = stagingService.createImportLog(fileName, fileDate, spec.getProviderId(), spec.getClientId());
+        long importLogId = stagingService.createImportLog(
+                fileName, fileDate,
+                spec.getProviderId(), spec.getClientId(),
+                result.getDeclaredLockboxCount());
 
         log.info("Parse complete – valid: {}, rejected: {}",
             result.validCount(), result.rejectedCount());

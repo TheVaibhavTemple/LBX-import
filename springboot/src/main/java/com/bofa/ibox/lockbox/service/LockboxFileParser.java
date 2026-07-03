@@ -148,7 +148,8 @@ public class LockboxFileParser {
                 root.getLockboxes().size() - rejected.size());
 
         // ── 9. Flatten valid rows + duplicate check ──────────────────────
-        return flattenWithDuplicateCheck(root, rejected, rejectedKeys, specificationIdentifier);
+        return flattenWithDuplicateCheck(root, rejected, rejectedKeys, specificationIdentifier,
+                root.getSummaryInfo().getLockboxCount());
     }
 
     // ====================================================================
@@ -638,7 +639,8 @@ public class LockboxFileParser {
     ParseResult flattenWithDuplicateCheck(LockboxFileRoot root,
             List<RejectedEntry> preRejected,
             Set<String> rejectedKeys,
-            String specificationIdentifier) {
+            String specificationIdentifier,
+            int declaredLockboxCount) {
         List<LockboxRow> validRows = new ArrayList<>();
         List<RejectedEntry> rejected = new ArrayList<>(preRejected);
         Set<String> seen = new LinkedHashSet<>();
@@ -704,9 +706,9 @@ public class LockboxFileParser {
             }
         }
 
-        log.info("Flatten complete – {} valid row(s), {} total rejected",
-                validRows.size(), rejected.size());
-        return new ParseResult(validRows, rejected);
+        log.info("Flatten complete – {} valid row(s), {} total rejected (declared total={})",
+                validRows.size(), rejected.size(), declaredLockboxCount);
+        return new ParseResult(validRows, rejected, declaredLockboxCount);
     }
 
     /**

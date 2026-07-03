@@ -17,7 +17,7 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres?currentSchema=ibox}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ibox_dev?currentSchema=public}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
@@ -42,7 +42,7 @@ lockbox:
     max-lockbox-count:     50000
     max-file-age-days:     2
     staging-retention-days: 30
-    db-schema: ${LOCKBOX_DB_SCHEMA:ibox}
+    db-schema: ${LOCKBOX_DB_SCHEMA:public}
 
 # ================= DEV =================
 ---

@@ -23,9 +23,19 @@ public class ParseResult {
     /** Rows rejected due to schema, bean, EV-202, or duplicate violations */
     private final List<RejectedEntry> rejectedEntries;
 
-    public ParseResult(List<LockboxRow> validRows, List<RejectedEntry> rejectedEntries) {
-        this.validRows        = validRows;
-        this.rejectedEntries  = rejectedEntries;
+    /**
+     * The declared lockbox count from {@code SummaryInfo.LockboxCount} in the source file.
+     * Validated by EV-215 to equal {@code Lockboxes[].size()} before this object is created,
+     * so it always reflects the total number of lockbox entries present in the file.
+     * Persisted to {@code ibox_lockbox_import_log.total_lockbox_count}.
+     */
+    private final int declaredLockboxCount;
+
+    public ParseResult(List<LockboxRow> validRows, List<RejectedEntry> rejectedEntries,
+                       int declaredLockboxCount) {
+        this.validRows            = validRows;
+        this.rejectedEntries      = rejectedEntries;
+        this.declaredLockboxCount = declaredLockboxCount;
     }
 
     public List<LockboxRow> getValidRows() {
@@ -35,6 +45,9 @@ public class ParseResult {
     public List<RejectedEntry> getRejectedEntries() {
         return rejectedEntries;
     }
+
+    /** Total lockbox count as declared in {@code SummaryInfo.LockboxCount} of the source file. */
+    public int getDeclaredLockboxCount() { return declaredLockboxCount; }
 
     public int validCount()    { return validRows.size(); }
     public int rejectedCount() { return rejectedEntries.size(); }
